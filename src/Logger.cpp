@@ -25,6 +25,7 @@
 #include "Logger.h"
 
 #include <QDir>
+#include <QStandardPaths>
 #include <QDateTime>
 #include <QHostInfo>
 
@@ -60,8 +61,9 @@ void Logger::log(const QString& data){
         if(dir.isAbsolute())
             qDebug() << "Logger: Opening " + filename + " to log.";
         else{
-            qDebug() << "Logger: Absolute path not given, opening " + QDir::homePath() + "/" + filename + " to log.";
-            QDir::setCurrent(QDir::homePath());
+            QString docDir = QStandardPaths::writableLocation(QStandardPaths::StandardLocation::DocumentsLocation);
+            qDebug() << "Logger: Absolute path not given, opening " + docDir + "/" + filename + " to log.";
+            QDir::setCurrent(docDir);
         }
 
         file.setFileName(filename);
