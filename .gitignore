@@ -1,0 +1,11 @@
+#Temp build files
+build*/
+
+#Temp QT files
+*.user
+
+#Annoying files
+*~
+
+#Ubuntu ignores
+.directory
