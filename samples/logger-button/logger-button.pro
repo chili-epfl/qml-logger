@@ -11,6 +11,15 @@ android {
     export(target.path)
     INSTALLS += target
     export(INSTALLS)
-
-    ANDROID_EXTRA_LIBS = $$[QT_INSTALL_QML]/Logger/libloggerplugin.so
 }
+
+DISTFILES += \
+    android/AndroidManifest.xml \
+    android/gradle/wrapper/gradle-wrapper.jar \
+    android/gradlew.bat \
+    android/res/values/libs.xml \
+    android/build.gradle \
+    android/gradle/wrapper/gradle-wrapper.properties \
+    android/gradlew
+
+ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
