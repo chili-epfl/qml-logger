@@ -24,10 +24,10 @@ QML API
 Parameters:
 
 >  - **logTime** :            `bool` - Whether to include the date and time in every log line, default true
+>  - **logMillis** :          `bool` - Whether to include milliseconds in date and time
 >  - **logLocalHostName** :   `bool` - Whether to include the local host name in every log line, default true
->  - **logCaller** :          `bool` - Whether to include the caller object that logged the data in every log line, default true
 >  - **filename** :           `string` - Desired log filename; if full path is not given, log file will be put in home directory
 
 Slots:
 
->  - **log(`string`)** :        Logs the given string to the file as a line
+>  - **log(**`string` data**)** :        Logs the given string to the file as a line

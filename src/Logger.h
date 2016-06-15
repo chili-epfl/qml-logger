@@ -35,8 +35,8 @@ class Logger : public QQuickItem {
     /* *INDENT-ON* */
 
     Q_PROPERTY(bool logTime MEMBER logTime)
+    Q_PROPERTY(bool logMillis MEMBER logMillis)
     Q_PROPERTY(bool logLocalHostName MEMBER logLocalHostName)
-    Q_PROPERTY(bool logCaller MEMBER logCaller)
     Q_PROPERTY(QString filename WRITE setFilename READ getFilename)
 
 public:
@@ -81,9 +81,10 @@ public slots:
 private:
 
     bool logTime;           ///< Whether to include time when data is logged
+    bool logMillis;         ///< Whether to include milliseconds when logging time
     bool logLocalHostName;  ///< Whether to include local hostname when data is logged
-    bool logCaller;         ///< Whether to include calling object name when data is logged
     QString filename;       ///< Log's filename or full path
+    bool filenameChanged;   ///< Filename changed and file needs reopening
 
     QFile file;             ///< Log file
     QTextStream writer;     ///< Log file writer

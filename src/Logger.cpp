@@ -25,13 +25,17 @@
 #include "Logger.h"
 
 #include <QDir>
+#include <QDateTime>
+#include <QHostInfo>
 
 Logger::Logger(QQuickItem* parent) :
     QQuickItem(parent)
 {
     logTime = true;
+    logMillis = false;
     logLocalHostName = true;
-    logCaller = true;
+
+    filenameChanged = false;
 }
 
 Logger::~Logger(){
@@ -45,24 +49,45 @@ void Logger::setFilename(const QString& filename){
 
     this->filename = filename;
 
-    QDir dir(filename);
-    if(dir.isAbsolute())
-        qDebug() << "Logger: Opening " + filename + " to log.";
-    else{
-        qDebug() << "Logger: Absolute path not given, opening " + QDir::homePath() + filename + " to log.";
-        QDir::setCurrent(QDir::homePath());
-    }
-
-    file.setFileName(filename);
-    if(!file.open(QIODevice::WriteOnly | QIODevice::Append))
-        qDebug() << "Logger: Could not open file.";
-    else
-        writer.setDevice(&file);
+    filenameChanged = true;
 }
 
 void Logger::log(const QString& data){
-    if(file.isOpen())
+
+    //File needs re-opening
+    if(filenameChanged){
+        QDir dir(filename);
+        if(dir.isAbsolute())
+            qDebug() << "Logger: Opening " + filename + " to log.";
+        else{
+            qDebug() << "Logger: Absolute path not given, opening " + QDir::homePath() + "/" + filename + " to log.";
+            QDir::setCurrent(QDir::homePath());
+        }
+
+        file.setFileName(filename);
+        if(!file.open(QIODevice::WriteOnly | QIODevice::Append)){
+            qDebug() << "Logger: Could not open file.";
+            return;
+        }
+        else
+            writer.setDevice(&file);
+
+        filenameChanged = false;
+    }
+
+    //Actual data logging
+    if(file.isOpen()){
+        if(logTime){
+            if(logMillis)
+                writer << "[" << QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss:zzz") << "] ";
+            else
+                writer << "[" << QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss") << "] ";
+        }
+        if(logLocalHostName)
+            writer << "[" << QHostInfo::localHostName() << "] ";
         writer << data << "\n";
+        writer.flush();
+    }
     else
         qDebug() << "Logger: Attempted log() but file is not open, valid filename must be provided beforehand.";
 }
