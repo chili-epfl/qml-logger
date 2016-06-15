@@ -32,9 +32,9 @@ QML API
 Parameters:
 
 >  - **logTime** :            `bool` - Whether to include the date and time in every log line, default true
->  - **logMillis** :          `bool` - Whether to include milliseconds in date and time
+>  - **logMillis** :          `bool` - Whether to include milliseconds in date and time, default false
 >  - **logDeviceInfo** :      `bool` - Whether to include the local unique device info in every log line, default true
->  - **filename** :           `string` - Desired log filename; if full path is not given, log file will be put in home directory
+>  - **filename** :           `string` - Desired log filename; if full path is not given, log file will be put in default documents directory
 
 Slots:
 
