@@ -13,7 +13,7 @@ Window {
         id: logger
         logTime: logTimeCheckBox.checked
         logMillis: logMillisCheckBox.checked
-        logLocalHostName: logLocalHostNameCheckBox.checked
+        logDeviceInfo: logDeviceInfoCheckBox.checked
         filename: filenameInput.text
     }
 
@@ -34,8 +34,8 @@ Window {
         }
 
         CheckBox{
-            id: logLocalHostNameCheckBox
-            text: "Log local host name"
+            id: logDeviceInfoCheckBox
+            text: "Log local unique device ID"
             checked: true
         }
 

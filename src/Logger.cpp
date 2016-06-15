@@ -27,16 +27,34 @@
 #include <QDir>
 #include <QStandardPaths>
 #include <QDateTime>
-#include <QHostInfo>
+#include <QSysInfo>
+#include <QNetworkInterface>
 
 Logger::Logger(QQuickItem* parent) :
     QQuickItem(parent)
 {
     logTime = true;
     logMillis = false;
-    logLocalHostName = true;
+    logDeviceInfo = true;
 
     filenameChanged = false;
+
+    //Build device ID string
+    deviceId = "[" + QSysInfo::prettyProductName();
+    QString macAddr("");
+    for(QNetworkInterface& interface : QNetworkInterface::allInterfaces())
+        if(!(interface.flags() & QNetworkInterface::IsLoopBack)){
+            QString hwAddr = interface.hardwareAddress();
+            if(hwAddr != "00:00:00:00:00:00"){
+                macAddr = hwAddr;
+                break;
+            }
+        }
+    if(macAddr != "")
+        deviceId += " @ " + macAddr;
+    else
+        qWarning() << "Logger: Couldn't get any MAC address of device, device ID won't be unique!";
+    deviceId += "] ";
 }
 
 Logger::~Logger(){
@@ -68,7 +86,7 @@ void Logger::log(const QString& data){
 
         file.setFileName(filename);
         if(!file.open(QIODevice::WriteOnly | QIODevice::Append)){
-            qDebug() << "Logger: Could not open file.";
+            qCritical() << "Logger: Could not open file.";
             return;
         }
         else
@@ -79,17 +97,22 @@ void Logger::log(const QString& data){
 
     //Actual data logging
     if(file.isOpen()){
+
+        //Time
         if(logTime){
             if(logMillis)
-                writer << "[" << QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss:zzz") << "] ";
+                writer << "[" + QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss:zzz") + "] ";
             else
-                writer << "[" << QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss") << "] ";
+                writer << "[" + QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss") + "] ";
         }
-        if(logLocalHostName)
-            writer << "[" << QHostInfo::localHostName() << "] ";
+
+        //Unique device ID
+        if(logDeviceInfo)
+            writer << deviceId;
+
         writer << data << "\n";
         writer.flush();
     }
     else
-        qDebug() << "Logger: Attempted log() but file is not open, valid filename must be provided beforehand.";
+        qCritical() << "Logger: Attempted log() but file is not open, valid filename must be provided beforehand.";
 }
