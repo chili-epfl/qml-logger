@@ -29,6 +29,7 @@
 #include <QDateTime>
 #include <QSysInfo>
 #include <QNetworkInterface>
+#include <QBluetoothLocalDevice>
 
 Logger::Logger(QQuickItem* parent) :
     QQuickItem(parent)
@@ -39,21 +40,40 @@ Logger::Logger(QQuickItem* parent) :
 
     filenameChanged = false;
 
-    //Build device ID string
+    /*
+     * Build device ID string
+     */
+
     deviceId = "[" + QSysInfo::prettyProductName();
+
     QString macAddr("");
-    for(QNetworkInterface& interface : QNetworkInterface::allInterfaces())
-        if(!(interface.flags() & QNetworkInterface::IsLoopBack)){
-            QString hwAddr = interface.hardwareAddress();
-            if(hwAddr != "00:00:00:00:00:00"){
-                macAddr = hwAddr;
-                break;
-            }
+
+    //Try Bluetooth first, it is more reliable than WiFi and Ethernet
+    for(QBluetoothHostInfo& info : QBluetoothLocalDevice::allDevices()){
+        QString hwAddr(info.address().toString());
+        if(hwAddr != "00:00:00:00:00:00" && hwAddr != "02:00:00:00:00:00"){
+            macAddr = hwAddr;
+            break;
         }
+    }
+
+    //Try WiFi/Ethernet next
+    if(macAddr == "")
+        for(QNetworkInterface& interface : QNetworkInterface::allInterfaces())
+            if(!(interface.flags() & QNetworkInterface::IsLoopBack)){
+                QString hwAddr = interface.hardwareAddress();
+                qDebug() << hwAddr;
+                if(hwAddr != "00:00:00:00:00:00"){
+                    macAddr = hwAddr;
+                    break;
+                }
+            }
+
     if(macAddr != "")
         deviceId += " @ " + macAddr;
     else
         qWarning() << "Logger: Couldn't get any MAC address of device, device ID won't be unique!";
+
     deviceId += "] ";
 }
 

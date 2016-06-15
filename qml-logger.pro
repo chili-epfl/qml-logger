@@ -4,7 +4,7 @@ TARGET = loggerplugin
 CONFIG += qt plugin c++11
 CONFIG -= android_install
 
-QT += qml quick
+QT += qml quick bluetooth
 
 QMAKE_CXXFLAGS -= -O2
 QMAKE_CXXFLAGS_RELEASE -= -O2
