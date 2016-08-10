@@ -15,6 +15,7 @@ Window {
         logMillis: logMillisCheckBox.checked
         logDeviceInfo: logDeviceInfoCheckBox.checked
         filename: filenameInput.text
+        toConsole: toConsoleCheckBox.checked
     }
 
     Column{
@@ -37,6 +38,12 @@ Window {
             id: logDeviceInfoCheckBox
             text: "Log local unique device ID"
             checked: true
+        }
+
+        CheckBox{
+            id: toConsoleCheckBox
+            text: "Log to console for debug"
+            checked: false
         }
 
         TextField{

@@ -31,14 +31,14 @@
 #include <QNetworkInterface>
 #include <QBluetoothLocalDevice>
 
-Logger::Logger(QQuickItem* parent) :
-    QQuickItem(parent)
-{
+Logger::Logger(QQuickItem* parent) : QQuickItem(parent){
     logTime = true;
     logMillis = false;
     logDeviceInfo = true;
 
-    filenameChanged = false;
+    fileNeedsReopen = false;
+
+    toConsole = false;
 
     /*
      * Build device ID string
@@ -82,19 +82,61 @@ Logger::~Logger(){
     file.close();
 }
 
+inline QString Logger::linePrefix(){
+    QString res = "";
+    if(logTime){
+        if(logMillis)
+            res += "[" + QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss:zzz") + "] ";
+        else
+            res += "[" + QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss") + "] ";
+    }
+    if(logDeviceInfo)
+        res += deviceId;
+    return res;
+}
+
+void Logger::setLogTime(bool logTime){
+    if(this->logTime != logTime){
+        this->logTime = logTime;
+        emit logTimeChanged();
+    }
+}
+
+void Logger::setLogMillis(bool logMillis){
+    if(this->logMillis != logMillis){
+        this->logMillis = logMillis;
+        emit logMillisChanged();
+    }
+}
+
+void Logger::setLogDeviceInfo(bool logDeviceInfo){
+    if(this->logDeviceInfo != logDeviceInfo){
+        this->logDeviceInfo = logDeviceInfo;
+        emit logDeviceInfoChanged();
+    }
+}
+
 void Logger::setFilename(const QString& filename){
-    writer.flush();
-    file.close();
+    if(this->filename != filename){
+        writer.flush();
+        file.close();
 
-    this->filename = filename;
+        this->filename = filename;
 
-    filenameChanged = true;
+        fileNeedsReopen = true;
+
+        emit filenameChanged();
+    }
 }
 
 void Logger::log(const QString& data){
+    if(toConsole){
+        qDebug() << linePrefix() + data;
+        return;
+    }
 
     //File needs re-opening
-    if(filenameChanged){
+    if(fileNeedsReopen){
         QDir dir(filename);
         if(dir.isAbsolute())
             qDebug() << "Logger: Opening " + filename + " to log.";
@@ -112,25 +154,12 @@ void Logger::log(const QString& data){
         else
             writer.setDevice(&file);
 
-        filenameChanged = false;
+        fileNeedsReopen = false;
     }
 
     //Actual data logging
     if(file.isOpen()){
-
-        //Time
-        if(logTime){
-            if(logMillis)
-                writer << "[" + QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss:zzz") + "] ";
-            else
-                writer << "[" + QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss") + "] ";
-        }
-
-        //Unique device ID
-        if(logDeviceInfo)
-            writer << deviceId;
-
-        writer << data << "\n";
+        writer << linePrefix() << data << "\n";
         writer.flush();
     }
     else
