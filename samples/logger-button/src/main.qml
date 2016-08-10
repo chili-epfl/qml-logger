@@ -11,6 +11,7 @@ Window {
 
     Logger{
         id: logger
+        enabled: enabledCheckbox.checked
         logTime: logTimeCheckBox.checked
         logMillis: logMillisCheckBox.checked
         logDeviceInfo: logDeviceInfoCheckBox.checked
@@ -21,6 +22,12 @@ Window {
     Column{
 
         spacing: 5
+
+        CheckBox{
+            id: enabledCheckbox
+            text: "Enabled"
+            checked: true
+        }
 
         CheckBox{
             id: logTimeCheckBox

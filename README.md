@@ -29,13 +29,15 @@ This will install the QML plugin inside the Qt sysroot. **Be aware that this is 
 QML API
 -------
 
-Parameters:
+Parameters for `Logger` object:
 
+>  - **enabled** :            `bool` - If false, nothing happens when log() is called, default true
 >  - **logTime** :            `bool` - Whether to include the date and time in every log line, default true
 >  - **logMillis** :          `bool` - Whether to include milliseconds in date and time, default false
 >  - **logDeviceInfo** :      `bool` - Whether to include the local unique device info in every log line, default true
 >  - **filename** :           `string` - Desired log filename; if full path is not given, log file will be put in default documents directory
+>  - **toConsole** :          `bool` - Whether to print the log lines to the console for debug purposes, default false
 
-Slots:
+Slots for `Logger` object:
 
->  - **log(**`string` data**)** :        Logs the given string to the file as a line
+>  - **log(** `string` data **)** :        Logs the given string to the file as a line

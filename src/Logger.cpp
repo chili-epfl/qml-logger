@@ -130,6 +130,9 @@ void Logger::setFilename(const QString& filename){
 }
 
 void Logger::log(const QString& data){
+    if(!isEnabled())
+        return;
+
     if(toConsole){
         qDebug() << linePrefix() + data;
         return;
