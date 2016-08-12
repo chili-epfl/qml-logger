@@ -144,10 +144,11 @@ void Logger::log(const QString& data){
         if(dir.isAbsolute())
             qDebug() << "Logger: Opening " + filename + " to log.";
         else{
-            QString docDir = QStandardPaths::writableLocation(QStandardPaths::StandardLocation::DocumentsLocation);
-            qDebug() << "Logger: Absolute path not given, opening " + docDir + "/" + filename + " to log.";
-            QDir::setCurrent(docDir);
+            filename = QStandardPaths::writableLocation(QStandardPaths::StandardLocation::DocumentsLocation) + "/" + filename;
+            qDebug() << "Logger: Absolute path not given, opening " + filename + " to log.";
+            emit filenameChanged();
         }
+        QDir::root().mkpath(QFileInfo(filename).absolutePath());
 
         file.setFileName(filename);
         if(!file.open(QIODevice::WriteOnly | QIODevice::Append)){
