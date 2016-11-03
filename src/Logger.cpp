@@ -69,6 +69,22 @@ Logger::Logger(QQuickItem* parent) : QQuickItem(parent){
                 }
             }
 
+    #ifdef ANDROID
+
+        //Try /sys/class/net/wlan0/address for Android 6
+        if(macAddr == ""){
+            QFile wifiMacAddressFile("/sys/class/net/wlan0/address");
+            if(wifiMacAddressFile.open(QIODevice::ReadOnly | QIODevice::Text)){
+                QString hwAddr = wifiMacAddressFile.readLine();
+                hwAddr = hwAddr.replace("\n","");
+                wifiMacAddressFile.close();
+                qDebug() << hwAddr;
+                if(hwAddr != "00:00:00:00:00:00" && hwAddr != "02:00:00:00:00:00")
+                    macAddr = hwAddr;
+            }
+        }
+    #endif
+
     if(macAddr != "")
         deviceId += " @ " + macAddr;
     else
