@@ -34,10 +34,10 @@ class SimpleLogger : public QQuickItem {
     Q_OBJECT
     /* *INDENT-ON* */
 
-    Q_PROPERTY(bool logTime WRITE setLogTime READ getLogTime NOTIFY logTimeChanged)
-    Q_PROPERTY(bool logMillis WRITE setLogMillis READ getLogMillis NOTIFY logMillisChanged)
-    Q_PROPERTY(bool logDeviceInfo WRITE setLogDeviceInfo READ getLogDeviceInfo NOTIFY logDeviceInfoChanged)
     Q_PROPERTY(QString filename WRITE setFilename READ getFilename NOTIFY filenameChanged)
+    Q_PROPERTY(bool logTime MEMBER logTime)
+    Q_PROPERTY(bool logMillis MEMBER logMillis)
+    Q_PROPERTY(bool logDeviceInfo MEMBER logDeviceInfo)
     Q_PROPERTY(bool toConsole MEMBER toConsole)
 
 public:
@@ -68,64 +68,7 @@ public:
      */
     QString getFilename(){ return filename; }
 
-    /**
-     * @brief Sets whether to timestamp the log lines
-     *
-     * @param logTime Whether to include timestamp
-     */
-    void setLogTime(bool logTime);
-
-    /**
-     * @brief Gets whether to timestamp the log lines
-     *
-     * @return Whether to timestamp the log lines
-     */
-    bool getLogTime(){ return logTime; }
-
-    /**
-     * @brief Sets whether to include milliseconds in timestamp
-     *
-     * @param logMillis Whether to include milliseconds in timestamp
-     */
-    void setLogMillis(bool logMillis);
-
-    /**
-     * @brief Gets whether to include milliseconds in timestamp
-     *
-     * @return Whether to include milliseconds in timestamp
-     */
-    bool getLogMillis(){ return logMillis; }
-
-    /**
-     * @brief Sets whether to log the device info
-     *
-     * @param logDeviceInfo Whether to log the device info
-     */
-    void setLogDeviceInfo(bool logDeviceInfo);
-
-    /**
-     * @brief Gets whether to log the device info
-     *
-     * @return Whether to log the device info
-     */
-    bool getLogDeviceInfo(){ return logDeviceInfo; }
-
 signals:
-
-    /**
-     * @brief Emitted when logTime changes
-     */
-    void logTimeChanged();
-
-    /**
-     * @brief Emitted when logMillis changes
-     */
-    void logMillisChanged();
-
-    /**
-     * @brief Emitted when logDeviceInfo changes
-     */
-    void logDeviceInfoChanged();
 
     /**
      * @brief Emitted when filename changes

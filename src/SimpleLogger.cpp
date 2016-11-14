@@ -34,10 +34,9 @@ SimpleLogger::SimpleLogger(QQuickItem* parent) : QQuickItem(parent){
     logTime = true;
     logMillis = true;
     logDeviceInfo = true;
+    toConsole = false;
 
     fileNeedsReopen = false;
-
-    toConsole = false;
 
     deviceId = "[" + LoggerUtil::getUniqueDeviceID() + "] ";
 }
@@ -58,27 +57,6 @@ inline QString SimpleLogger::linePrefix(){
     if(logDeviceInfo)
         res += deviceId;
     return res;
-}
-
-void SimpleLogger::setLogTime(bool logTime){
-    if(this->logTime != logTime){
-        this->logTime = logTime;
-        emit logTimeChanged();
-    }
-}
-
-void SimpleLogger::setLogMillis(bool logMillis){
-    if(this->logMillis != logMillis){
-        this->logMillis = logMillis;
-        emit logMillisChanged();
-    }
-}
-
-void SimpleLogger::setLogDeviceInfo(bool logDeviceInfo){
-    if(this->logDeviceInfo != logDeviceInfo){
-        this->logDeviceInfo = logDeviceInfo;
-        emit logDeviceInfoChanged();
-    }
 }
 
 void SimpleLogger::setFilename(const QString& filename){
