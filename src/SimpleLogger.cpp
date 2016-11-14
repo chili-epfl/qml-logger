@@ -85,17 +85,17 @@ void SimpleLogger::log(const QString& data){
     if(fileNeedsReopen){
         QDir dir(filename);
         if(dir.isAbsolute())
-            qDebug() << "SimpleLogger: Opening " + filename + " to log.";
+            qDebug() << "SimpleLogger::log(): Opening " + filename + " to log.";
         else{
             filename = QStandardPaths::writableLocation(QStandardPaths::StandardLocation::DocumentsLocation) + "/" + filename;
-            qDebug() << "SimpleLogger: Absolute path not given, opening " + filename + " to log.";
+            qDebug() << "SimpleLogger::log(): Absolute path not given, opening " + filename + " to log.";
             emit filenameChanged();
         }
         QDir::root().mkpath(QFileInfo(filename).absolutePath());
 
         file.setFileName(filename);
         if(!file.open(QIODevice::WriteOnly | QIODevice::Append)){
-            qCritical() << "SimpleLogger: Could not open file.";
+            qCritical() << "SimpleLogger::log(): Could not open file.";
             return;
         }
         else
@@ -110,5 +110,5 @@ void SimpleLogger::log(const QString& data){
         writer.flush();
     }
     else
-        qCritical() << "SimpleLogger: Attempted log() but file is not open, valid filename must be provided beforehand.";
+        qCritical() << "SimpleLogger::log(): File is not open, valid filename must be provided beforehand.";
 }

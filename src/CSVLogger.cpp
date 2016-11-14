@@ -136,17 +136,17 @@ void CSVLogger::log(QList<QString> const& data){
     if(fileNeedsReopen){
         QDir dir(filename);
         if(dir.isAbsolute())
-            qDebug() << "CSVLogger: Opening " + filename + " to log.";
+            qDebug() << "CSVLogger::log(): Opening " + filename + " to log.";
         else{
             filename = QStandardPaths::writableLocation(QStandardPaths::StandardLocation::DocumentsLocation) + "/" + filename;
-            qDebug() << "CSVLogger: Absolute path not given, opening " + filename + " to log.";
+            qDebug() << "CSVLogger::log(): Absolute path not given, opening " + filename + " to log.";
             emit filenameChanged();
         }
         QDir::root().mkpath(QFileInfo(filename).absolutePath());
 
         file.setFileName(filename);
         if(!file.open(QIODevice::WriteOnly | QIODevice::Append)){
-            qCritical() << "CSVLogger: Could not open file.";
+            qCritical() << "CSVLogger::log(): Could not open file.";
             return;
         }
         else
@@ -156,14 +156,10 @@ void CSVLogger::log(QList<QString> const& data){
         writing = true;
 
         //Build and dump header if file is empty or newly created
-        if(file.isOpen()){
-            if(file.pos() == 0){
-                writer << buildHeaderString() << "\n";
-                writer.flush();
-            }
+        if(file.pos() == 0){
+            writer << buildHeaderString() << "\n";
+            writer.flush();
         }
-        else
-            qCritical() << "CSVLogger: Attempted log() but file is not open, valid filename must be provided beforehand.";
     }
 
     //Actual data logging
@@ -172,5 +168,5 @@ void CSVLogger::log(QList<QString> const& data){
         writer.flush();
     }
     else
-        qCritical() << "CSVLogger: Attempted log() but file is not open, valid filename must be provided beforehand.";
+        qCritical() << "CSVLogger::log(): File is not open, valid filename must be provided beforehand.";
 }
