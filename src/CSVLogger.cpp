@@ -44,8 +44,14 @@ CSVLogger::CSVLogger(QQuickItem* parent) :
 }
 
 CSVLogger::~CSVLogger(){
+    close();
+}
+
+void CSVLogger::close(){
     writer.flush();
     file.close();
+    fileNeedsReopen = true;
+    writing = false;
 }
 
 inline QString CSVLogger::buildLogLine(QList<QString> const& data){

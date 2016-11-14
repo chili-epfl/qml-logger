@@ -122,24 +122,10 @@ public slots:
      */
     void log(QList<QString> const& data);
 
-
-
-
-
-
-
-    //void clasdasdasdasdose();
-
-
-
-
-
-
-
-
-
-
-
+    /**
+     * @brief Closes the log file
+     */
+    void close();
 
 private:
 
