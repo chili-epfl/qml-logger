@@ -3,11 +3,8 @@ import QtQuick.Window 2.1
 import QtQuick.Controls 1.4
 import Logger 1.0
 
-Window {
+ApplicationWindow {
     visible: true
-
-    width: 640
-    height: 480
 
     SimpleLogger{
         id: logger
@@ -38,7 +35,7 @@ Window {
         CheckBox{
             id: logMillisCheckBox
             text: "Log milliseconds as well in time (needs time enabled)"
-            checked: false
+            checked: true
         }
 
         CheckBox{
