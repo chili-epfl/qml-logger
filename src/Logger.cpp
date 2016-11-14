@@ -33,7 +33,7 @@
 
 Logger::Logger(QQuickItem* parent) : QQuickItem(parent){
     logTime = true;
-    logMillis = false;
+    logMillis = true;
     logDeviceInfo = true;
 
     fileNeedsReopen = false;
