@@ -9,7 +9,7 @@ Window {
     width: 640
     height: 480
 
-    Logger{
+    SimpleLogger{
         id: logger
         enabled: enabledCheckbox.checked
         logTime: logTimeCheckBox.checked

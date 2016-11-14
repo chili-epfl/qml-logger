@@ -24,8 +24,8 @@
 
 #include "LoggerPlugin.h"
 
-#include "Logger.h"
+#include "SimpleLogger.h"
 
 void LoggerPlugin::registerTypes(const char* uri){
-    qmlRegisterType<Logger>(uri, 1, 0, "Logger");
+    qmlRegisterType<SimpleLogger>(uri, 1, 0, "SimpleLogger");
 }

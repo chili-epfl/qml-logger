@@ -17,11 +17,11 @@ uri = Logger
 
 HEADERS += \
     src/LoggerPlugin.h \
-    src/Logger.h
+    src/SimpleLogger.h
 
 SOURCES += \
     src/LoggerPlugin.cpp \
-    src/Logger.cpp
+    src/SimpleLogger.cpp
 
 OTHER_FILES += qmldir
 

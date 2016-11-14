@@ -16,13 +16,13 @@
  */
 
 /**
- * @file Logger.cpp
- * @brief Implementation of the QML wrapper for Logger
+ * @file SimpleLogger.cpp
+ * @brief Source for a simple line-by-line logger
  * @author Ayberk Özgür
  * @date 2016-06-15
  */
 
-#include "Logger.h"
+#include "SimpleLogger.h"
 
 #include <QDir>
 #include <QStandardPaths>
@@ -31,7 +31,7 @@
 #include <QNetworkInterface>
 #include <QBluetoothLocalDevice>
 
-Logger::Logger(QQuickItem* parent) : QQuickItem(parent){
+SimpleLogger::SimpleLogger(QQuickItem* parent) : QQuickItem(parent){
     logTime = true;
     logMillis = true;
     logDeviceInfo = true;
@@ -93,12 +93,12 @@ Logger::Logger(QQuickItem* parent) : QQuickItem(parent){
     deviceId += "] ";
 }
 
-Logger::~Logger(){
+SimpleLogger::~SimpleLogger(){
     writer.flush();
     file.close();
 }
 
-inline QString Logger::linePrefix(){
+inline QString SimpleLogger::linePrefix(){
     QString res = "";
     if(logTime){
         if(logMillis)
@@ -111,28 +111,28 @@ inline QString Logger::linePrefix(){
     return res;
 }
 
-void Logger::setLogTime(bool logTime){
+void SimpleLogger::setLogTime(bool logTime){
     if(this->logTime != logTime){
         this->logTime = logTime;
         emit logTimeChanged();
     }
 }
 
-void Logger::setLogMillis(bool logMillis){
+void SimpleLogger::setLogMillis(bool logMillis){
     if(this->logMillis != logMillis){
         this->logMillis = logMillis;
         emit logMillisChanged();
     }
 }
 
-void Logger::setLogDeviceInfo(bool logDeviceInfo){
+void SimpleLogger::setLogDeviceInfo(bool logDeviceInfo){
     if(this->logDeviceInfo != logDeviceInfo){
         this->logDeviceInfo = logDeviceInfo;
         emit logDeviceInfoChanged();
     }
 }
 
-void Logger::setFilename(const QString& filename){
+void SimpleLogger::setFilename(const QString& filename){
     if(this->filename != filename){
         writer.flush();
         file.close();
@@ -145,7 +145,7 @@ void Logger::setFilename(const QString& filename){
     }
 }
 
-void Logger::log(const QString& data){
+void SimpleLogger::log(const QString& data){
     if(!isEnabled())
         return;
 
@@ -158,17 +158,17 @@ void Logger::log(const QString& data){
     if(fileNeedsReopen){
         QDir dir(filename);
         if(dir.isAbsolute())
-            qDebug() << "Logger: Opening " + filename + " to log.";
+            qDebug() << "SimpleLogger: Opening " + filename + " to log.";
         else{
             filename = QStandardPaths::writableLocation(QStandardPaths::StandardLocation::DocumentsLocation) + "/" + filename;
-            qDebug() << "Logger: Absolute path not given, opening " + filename + " to log.";
+            qDebug() << "SimpleLogger: Absolute path not given, opening " + filename + " to log.";
             emit filenameChanged();
         }
         QDir::root().mkpath(QFileInfo(filename).absolutePath());
 
         file.setFileName(filename);
         if(!file.open(QIODevice::WriteOnly | QIODevice::Append)){
-            qCritical() << "Logger: Could not open file.";
+            qCritical() << "SimpleLogger: Could not open file.";
             return;
         }
         else
@@ -183,5 +183,5 @@ void Logger::log(const QString& data){
         writer.flush();
     }
     else
-        qCritical() << "Logger: Attempted log() but file is not open, valid filename must be provided beforehand.";
+        qCritical() << "SimpleLogger: Attempted log() but file is not open, valid filename must be provided beforehand.";
 }

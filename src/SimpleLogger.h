@@ -16,20 +16,20 @@
  */
 
 /**
- * @file Logger.h
- * @brief QML wrapper for Logger
+ * @file SimpleLogger.h
+ * @brief Header for a simple line-by-line logger
  * @author Ayberk Özgür
  * @date 2016-06-15
  */
 
-#ifndef LOGGER_H
-#define LOGGER_H
+#ifndef SIMPLELOGGER_H
+#define SIMPLELOGGER_H
 
 #include <QQuickItem>
 #include <QString>
 #include <QFile>
 
-class Logger : public QQuickItem {
+class SimpleLogger : public QQuickItem {
     /* *INDENT-OFF* */
     Q_OBJECT
     /* *INDENT-ON* */
@@ -43,16 +43,16 @@ class Logger : public QQuickItem {
 public:
 
     /**
-     * @brief Creates a new Logger with the given QML parent
+     * @brief Creates a new SimpleLogger with the given QML parent
      *
      * @param parent The QML parent
      */
-    Logger(QQuickItem* parent = 0);
+    SimpleLogger(QQuickItem* parent = 0);
 
     /**
-     * @brief Destroys this Logger
+     * @brief Dumps remaining logs to file and destroys this SimpleLogger
      */
-    ~Logger();
+    ~SimpleLogger();
 
     /**
      * @brief Sets the file name; puts file to home directory if full path is not given
@@ -165,4 +165,4 @@ private:
 
 };
 
-#endif /* LOGGER_H */
+#endif /* SIMPLELOGGER_H */
