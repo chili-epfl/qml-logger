@@ -42,7 +42,7 @@ log file:
 
 **Properties:**
 
->  - **enabled** :            `bool` -      If false, nothing happens when log() is called, default true
+>  - **enabled** :            `bool` -      If false, nothing happens when `log()` is called, default true
 >  - **logTime** :            `bool` -      Whether to include the timestamp in every log line, default true
 >  - **logMillis** :          `bool` -      Whether to include milliseconds in date and time, default true
 >  - **logDeviceInfo** :      `bool` -      Whether to include the local unique device info in every log line, default true
@@ -73,7 +73,7 @@ log file:
 
 **Properties:**
 
->  - **enabled** :      `bool` -            If false, nothing happens when log() is called, default `true`
+>  - **enabled** :      `bool` -            If false, nothing happens when `log()` is called, default `true`
 >  - **header** :       `list<string>` -    Header fields (excluding timestamp), cannot be changed after a call to `log()` until a call to `close()`, default `[]`
 >  - **logTime** :      `bool` -            Whether to include the timestamp in every log line as the first field, cannot be changed after a call to `log()` until a call to `close()`, default `true`
 >  - **logMillis** :    `bool` -            Whether to include milliseconds in date and time, default `true`
