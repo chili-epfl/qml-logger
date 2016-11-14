@@ -31,15 +31,16 @@
 #include <QNetworkInterface>
 #include <QBluetoothLocalDevice>
 
-CSVLogger::CSVLogger(QQuickItem* parent) : QQuickItem(parent){
+CSVLogger::CSVLogger(QQuickItem* parent) :
+    QQuickItem(parent),
+    timestampHeader("timestamp")
+{
     logTime = true;
     logMillis = true;
-
-    fileNeedsReopen = false;
-
     toConsole = false;
 
-    devid
+    fileNeedsReopen = false;
+    writing = false;
 }
 
 CSVLogger::~CSVLogger(){
@@ -47,29 +48,43 @@ CSVLogger::~CSVLogger(){
     file.close();
 }
 
-inline QString CSVLogger::linePrefix(){
-    QString res = "";
+inline QString CSVLogger::buildLogLine(QList<QString> const& data){
+    QString line = "";
+
+    //Timestamp
     if(logTime){
         if(logMillis)
-            res += QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss.zzz");
+            line += QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss.zzz");
         else
-            res += QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss");
+            line += QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss");
     }
-    return res;
+
+    //Rest of data
+    if(data.size() != header.size())
+        qWarning() << "CSVLogger::buildLogLine(): Data and header don't have the same length, log file will not be correct.";
+    if(data.size() > 0){
+        if(logTime)
+            line += ", ";
+        line += data.at(0);
+    }
+    for(int i = 1; i < data.size(); i++)
+        line += ", " + data.at(i);
+
+    return line;
 }
 
-void CSVLogger::setLogTime(bool logTime){
-    if(this->logTime != logTime){
-        this->logTime = logTime;
-        emit logTimeChanged();
+inline QString CSVLogger::buildHeaderString(){
+    QString headerString = "";
+    if(logTime)
+        headerString += timestampHeader;
+    if(header.size() > 0){
+        if(logTime)
+            headerString += ", ";
+        headerString += header.at(0);
     }
-}
-
-void CSVLogger::setLogMillis(bool logMillis){
-    if(this->logMillis != logMillis){
-        this->logMillis = logMillis;
-        emit logMillisChanged();
-    }
+    for(int i = 1; i < header.size(); i++)
+        headerString += ", " + header.at(i);
+    return headerString;
 }
 
 void CSVLogger::setFilename(const QString& filename){
@@ -80,17 +95,40 @@ void CSVLogger::setFilename(const QString& filename){
         this->filename = filename;
 
         fileNeedsReopen = true;
+        writing = false;
 
         emit filenameChanged();
     }
 }
 
-void CSVLogger::log(const QString& data){
+void CSVLogger::setLogTime(bool logTime){
+    if(this->logTime != logTime){
+        if(writing)
+            qCritical() << "CSVLogger::setLogTime(): logTime cannot be changed while writing.";
+        else{
+            this->logTime = logTime;
+            emit logTimeChanged();
+        }
+    }
+}
+
+void CSVLogger::setHeader(QList<QString> const& header){
+    if(this->header != header){
+        if(writing)
+            qCritical() << "CSVLogger::setHeader(): header cannot be changed while writing.";
+        else{
+            this->header = header;
+            emit headerChanged();
+        }
+    }
+}
+
+void CSVLogger::log(QList<QString> const& data){
     if(!isEnabled())
         return;
 
     if(toConsole){
-        qDebug() << linePrefix() + data;
+        qDebug() << buildLogLine(data);
         return;
     }
 
@@ -98,34 +136,41 @@ void CSVLogger::log(const QString& data){
     if(fileNeedsReopen){
         QDir dir(filename);
         if(dir.isAbsolute())
-            qDebug() << "Logger: Opening " + filename + " to log.";
+            qDebug() << "CSVLogger: Opening " + filename + " to log.";
         else{
             filename = QStandardPaths::writableLocation(QStandardPaths::StandardLocation::DocumentsLocation) + "/" + filename;
-            qDebug() << "Logger: Absolute path not given, opening " + filename + " to log.";
+            qDebug() << "CSVLogger: Absolute path not given, opening " + filename + " to log.";
             emit filenameChanged();
         }
         QDir::root().mkpath(QFileInfo(filename).absolutePath());
 
         file.setFileName(filename);
         if(!file.open(QIODevice::WriteOnly | QIODevice::Append)){
-            qCritical() << "Logger: Could not open file.";
+            qCritical() << "CSVLogger: Could not open file.";
             return;
         }
         else
             writer.setDevice(&file);
 
-
-        //// DUMP HEADER
-
-
         fileNeedsReopen = false;
+        writing = true;
+
+        //Build and dump header if file is empty or newly created
+        if(file.isOpen()){
+            if(file.pos() == 0){
+                writer << buildHeaderString() << "\n";
+                writer.flush();
+            }
+        }
+        else
+            qCritical() << "CSVLogger: Attempted log() but file is not open, valid filename must be provided beforehand.";
     }
 
     //Actual data logging
     if(file.isOpen()){
-        writer << linePrefix() << data << "\n";
+        writer << buildLogLine(data) << "\n";
         writer.flush();
     }
     else
-        qCritical() << "Logger: Attempted log() but file is not open, valid filename must be provided beforehand.";
+        qCritical() << "CSVLogger: Attempted log() but file is not open, valid filename must be provided beforehand.";
 }

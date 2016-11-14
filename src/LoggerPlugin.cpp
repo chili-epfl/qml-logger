@@ -26,6 +26,7 @@
 
 #include "LoggerUtil.h"
 #include "SimpleLogger.h"
+#include "CSVLogger.h"
 
 void LoggerPlugin::registerTypes(const char* uri){
     qmlRegisterSingletonType<LoggerUtil>(uri, 1, 0, "LoggerUtil",
@@ -35,4 +36,5 @@ void LoggerPlugin::registerTypes(const char* uri){
                                                    return new LoggerUtil();
                                                });
     qmlRegisterType<SimpleLogger>(uri, 1, 0, "SimpleLogger");
+    qmlRegisterType<CSVLogger>(uri, 1, 0, "CSVLogger");
 }

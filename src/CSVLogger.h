@@ -34,15 +34,11 @@ class CSVLogger : public QQuickItem {
     Q_OBJECT
     /* *INDENT-ON* */
 
-    Q_PROPERTY(bool logTime WRITE setLogTime READ getLogTime NOTIFY logTimeChanged)
-    Q_PROPERTY(bool logMillis WRITE setLogMillis READ getLogMillis NOTIFY logMillisChanged)
-    Q_PROPERTY(bool deviceId READ getDeviceId CONSTANT)
     Q_PROPERTY(QString filename WRITE setFilename READ getFilename NOTIFY filenameChanged)
+    Q_PROPERTY(bool logTime WRITE setLogTime READ getLogTime NOTIFY logTimeChanged)
+    Q_PROPERTY(bool logMillis MEMBER logMillis)
     Q_PROPERTY(bool toConsole MEMBER toConsole)
-
-
-
-    Q_PROPERTY(qstringarr header WRITE READ NOTIFY) //setter should give qwarning() << "not editable" after first log
+    Q_PROPERTY(QList<QString> header WRITE setHeader READ getHeader NOTIFY headerChanged)
 
 public:
 
@@ -73,41 +69,39 @@ public:
     QString getFilename(){ return filename; }
 
     /**
-     * @brief Sets whether to timestamp the log lines
+     * @brief Sets whether to log the timestamp as the first field, has no effect after the first log()
      *
-     * @param logTime Whether to include timestamp
+     * @param logTime Whether to log the timestamp as the first field
      */
     void setLogTime(bool logTime);
 
     /**
-     * @brief Gets whether to timestamp the log lines
+     * @brief Gets whether the timestamp is being logged
      *
-     * @return Whether to timestamp the log lines
+     * @return Whether the timestamp is being logged
      */
     bool getLogTime(){ return logTime; }
 
     /**
-     * @brief Sets whether to include milliseconds in timestamp
+     * @brief Sets the new header to be dumped to the log file on its first open if it's empty
      *
-     * @param logMillis Whether to include milliseconds in timestamp
+     * @param header New header
      */
-    void setLogMillis(bool logMillis);
+    void setHeader(QList<QString> const& header);
 
     /**
-     * @brief Gets whether to include milliseconds in timestamp
+     * @brief Gets the current header
      *
-     * @return Whether to include milliseconds in timestamp
+     * @return The current header
      */
-    bool getLogMillis(){ return logMillis; }
-
-    /**
-     * @brief Gets the unique device ID
-     *
-     * @return The unique device ID
-     */
-    QString getDeviceId(){ return deviceId; }
+    QList<QString> getHeader(){ return header; }
 
 signals:
+
+    /**
+     * @brief Emitted when filename changes
+     */
+    void filenameChanged();
 
     /**
      * @brief Emitted when logTime changes
@@ -115,44 +109,69 @@ signals:
     void logTimeChanged();
 
     /**
-     * @brief Emitted when logMillis changes
+     * @brief Emitted when the header changes
      */
-    void logMillisChanged();
-
-    /**
-     * @brief Emitted when filename changes
-     */
-    void filenameChanged();
+    void headerChanged();
 
 public slots:
 
     /**
-     * @brief Logs given data as one line to file
+     * @brief Logs given data as one entry
      *
-     * @param data Data to log
+     * @param data Data to log, must conform to the header format if meaningful log is desired
      */
-    void log(qstringable array log);//const QString& data);
+    void log(QList<QString> const& data);
+
+
+
+
+
+
+
+    //void clasdasdasdasdose();
+
+
+
+
+
+
+
+
+
+
+
 
 private:
 
-    bool logTime;           ///< Whether to include timestamp when data is logged
-    bool logMillis;         ///< Whether to include milliseconds in the timestamp
-    QString filename;       ///< Log's filename or full path
-    bool fileNeedsReopen;   ///< Filename changed and file needs reopening
+    QString filename;              ///< Log's filename or full path
+    QList<QString> header;         ///< Header to dump on the first line
 
-    QFile file;             ///< Log file
-    QTextStream writer;     ///< Log file writer
+    bool fileNeedsReopen;          ///< Filename changed and file needs reopening
+    bool writing;                  ///< Log is being written
 
-    bool toConsole;         ///< Log to console instead of file for debug purposes
+    QFile file;                    ///< Log file
+    QTextStream writer;            ///< Log file writer
 
-    QString deviceId;       ///< Unique device ID
+    bool logTime;                  ///< Whether to include timestamp as the first field when data is logged
+    bool logMillis;                ///< Whether to include milliseconds in the timestamp
+    bool toConsole;                ///< Log to console instead of file for debug purposes
+
+    const QString timestampHeader; ///< Timestamp header field string
 
     /**
-     * @brief Builds the log line info prefix
+     * @brief Builds and gets the header string
      *
-     * @return Log line info prefix
+     * @return Header string, including the timestamp as the first field if logTime is true
      */
-    QString linePrefix();
+    QString buildHeaderString();
+
+    /**
+     * @brief Builds and gets the log row
+     *
+     * @brief data Data to log
+     * @return Log row
+     */
+    QString buildLogLine(QList<QString> const& data);
 
 };
 
