@@ -37,7 +37,7 @@ configured as under the specific OS. Every call to the `log(string data)` slot w
 log file:
 
 ```
-    [timestamp if enabled] [unique device ID if enabled] data
+    [timestamp in yyyy-MM-dd HH:mm:ss.zzz format if enabled] [unique device ID if enabled] data
 ```
 
 **Properties:**
@@ -61,14 +61,14 @@ the specific OS. At the first call to the `log(list<string> data)` slot, if the 
 header will be dumped to the file as follows:
 
 ```
-    [timestamp if enabled], header[0], header[1], ..., header[N - 1]
+    timestamp if enabled, header[0], header[1], ..., header[N - 1]
 ```
 
 After that, every call to the `log(list<string> data)` slot will result in a line as follows in the
 log file:
 
 ```
-    [timestamp if enabled], data[0], data[1], ..., data[N - 1]
+    timestamp in yyyy-MM-dd HH:mm:ss.zzz format if enabled, data[0], data[1], ..., data[N - 1]
 ```
 
 **Properties:**
