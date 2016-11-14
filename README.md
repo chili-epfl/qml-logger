@@ -21,6 +21,14 @@ This will install the QML plugin inside the Qt sysroot. **Be aware that this is 
 QML API
 -------
 
+### `LoggerUtil`
+
+Singleton object containing various Logger utilities.
+
+**Properties:**
+
+>  - **uniqueDeviceID** : `string [read-only]` - Unique device ID (without spaces) if possible, non-unique device ID if not
+
 ### `SimpleLogger`
 
 Utility to log strings line by line with optional timestamp and unique device ID. Unless given a full path, this will
@@ -32,7 +40,7 @@ log file:
     [date & time if enabled] [device info if enabled] data
 ```
 
-**Parameters:**
+**Properties:**
 
 >  - **enabled** :            `bool` -      If false, nothing happens when log() is called, default true
 >  - **logTime** :            `bool` -      Whether to include the date and time in every log line, default true

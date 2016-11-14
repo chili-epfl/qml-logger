@@ -39,55 +39,7 @@ CSVLogger::CSVLogger(QQuickItem* parent) : QQuickItem(parent){
 
     toConsole = false;
 
-    /*
-     * Build device ID string
-     */
-
-    deviceId = QSysInfo::prettyProductName();
-
-    QString macAddr("");
-
-    //Try Bluetooth first, it is more reliable than WiFi and Ethernet
-    for(QBluetoothHostInfo& info : QBluetoothLocalDevice::allDevices()){
-        QString hwAddr(info.address().toString());
-        if(hwAddr != "00:00:00:00:00:00" && hwAddr != "02:00:00:00:00:00"){
-            macAddr = hwAddr;
-            break;
-        }
-    }
-
-    //Try WiFi/Ethernet next
-    if(macAddr == "")
-        for(QNetworkInterface& interface : QNetworkInterface::allInterfaces())
-            if(!(interface.flags() & QNetworkInterface::IsLoopBack)){
-                QString hwAddr = interface.hardwareAddress();
-                qDebug() << hwAddr;
-                if(hwAddr != "00:00:00:00:00:00"){
-                    macAddr = hwAddr;
-                    break;
-                }
-            }
-
-    #ifdef ANDROID
-
-        //Try /sys/class/net/wlan0/address for Android 6
-        if(macAddr == ""){
-            QFile wifiMacAddressFile("/sys/class/net/wlan0/address");
-            if(wifiMacAddressFile.open(QIODevice::ReadOnly | QIODevice::Text)){
-                QString hwAddr = wifiMacAddressFile.readLine();
-                hwAddr = hwAddr.replace("\n","");
-                wifiMacAddressFile.close();
-                qDebug() << hwAddr;
-                if(hwAddr != "00:00:00:00:00:00" && hwAddr != "02:00:00:00:00:00")
-                    macAddr = hwAddr;
-            }
-        }
-    #endif
-
-    if(macAddr != "")
-        deviceId += " @ " + macAddr;
-    else
-        qWarning() << "Logger: Couldn't get any MAC address of device, device ID won't be unique!";
+    devid
 }
 
 CSVLogger::~CSVLogger(){

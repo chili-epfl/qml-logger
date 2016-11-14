@@ -135,8 +135,8 @@ public slots:
 
 private:
 
-    bool logTime;           ///< Whether to include time when data is logged
-    bool logMillis;         ///< Whether to include milliseconds when logging time
+    bool logTime;           ///< Whether to include timestamp when data is logged
+    bool logMillis;         ///< Whether to include milliseconds in the timestamp
     QString filename;       ///< Log's filename or full path
     bool fileNeedsReopen;   ///< Filename changed and file needs reopening
 

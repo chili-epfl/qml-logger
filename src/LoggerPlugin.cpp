@@ -24,8 +24,15 @@
 
 #include "LoggerPlugin.h"
 
+#include "LoggerUtil.h"
 #include "SimpleLogger.h"
 
 void LoggerPlugin::registerTypes(const char* uri){
+    qmlRegisterSingletonType<LoggerUtil>(uri, 1, 0, "LoggerUtil",
+                                               [] (QQmlEngine* qmlEngine, QJSEngine* jsEngine)->QObject* {
+                                                   Q_UNUSED(qmlEngine)
+                                                   Q_UNUSED(jsEngine)
+                                                   return new LoggerUtil();
+                                               });
     qmlRegisterType<SimpleLogger>(uri, 1, 0, "SimpleLogger");
 }
