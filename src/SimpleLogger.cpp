@@ -102,7 +102,7 @@ inline QString SimpleLogger::linePrefix(){
     QString res = "";
     if(logTime){
         if(logMillis)
-            res += "[" + QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss:zzz") + "] ";
+            res += "[" + QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss.zzz") + "] ";
         else
             res += "[" + QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss") + "] ";
     }
