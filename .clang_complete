@@ -1,10 +1,10 @@
--I/opt/Qt/5.6/gcc_64/include
--I/opt/Qt/5.6/gcc_64/include/QtQuick
--I/opt/Qt/5.6/gcc_64/include/QtGui
--I/opt/Qt/5.6/gcc_64/include/QtQml
--I/opt/Qt/5.6/gcc_64/include/QtNetwork
--I/opt/Qt/5.6/gcc_64/include/QtBluetooth
--I/opt/Qt/5.6/gcc_64/include/QtCore
+-I/opt/Qt/5.8/gcc_64/include
+-I/opt/Qt/5.8/gcc_64/include/QtQuick
+-I/opt/Qt/5.8/gcc_64/include/QtGui
+-I/opt/Qt/5.8/gcc_64/include/QtQml
+-I/opt/Qt/5.8/gcc_64/include/QtNetwork
+-I/opt/Qt/5.8/gcc_64/include/QtBluetooth
+-I/opt/Qt/5.8/gcc_64/include/QtCore
 -Iinclude/
 -fPIE
 -std=c++11
