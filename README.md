@@ -79,8 +79,9 @@ log file:
 >  - **logMillis** :    `bool` -            Whether to include milliseconds in date and time, default `true`
 >  - **filename** :     `string` -          Desired log filename; if full path is not given, log file will be put in default documents directory
 >  - **toConsole** :    `bool` -            Whether to print the log lines to the console for debug purposes, default `false`
+>  - **precision** :    `int` -             Number of decimal places for printing floating point numbers, default `2`
 
 **Slots:**
 
->  - **log(** `list<string>` data **)** :   Logs the given data to the file as a line with comma separated fields
+>  - **log(** `list<var>` data **)** :      Logs the given data to the file as a line with comma separated fields
 >  - **close()** :                          Closes the log file    

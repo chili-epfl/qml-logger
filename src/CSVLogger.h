@@ -28,6 +28,7 @@
 #include <QQuickItem>
 #include <QString>
 #include <QFile>
+#include <QVariant>
 
 class CSVLogger : public QQuickItem {
     /* *INDENT-OFF* */
@@ -38,6 +39,7 @@ class CSVLogger : public QQuickItem {
     Q_PROPERTY(bool logTime WRITE setLogTime READ getLogTime NOTIFY logTimeChanged)
     Q_PROPERTY(bool logMillis MEMBER logMillis)
     Q_PROPERTY(bool toConsole MEMBER toConsole)
+    Q_PROPERTY(int precision MEMBER precision)
     Q_PROPERTY(QList<QString> header WRITE setHeader READ getHeader NOTIFY headerChanged)
 
 public:
@@ -120,7 +122,7 @@ public slots:
      *
      * @param data Data to log, must conform to the header format if meaningful log is desired
      */
-    void log(QList<QString> const& data);
+    void log(QVariantList const& data);
 
     /**
      * @brief Closes the log file
@@ -141,6 +143,7 @@ private:
     bool logTime;                  ///< Whether to include timestamp as the first field when data is logged
     bool logMillis;                ///< Whether to include milliseconds in the timestamp
     bool toConsole;                ///< Log to console instead of file for debug purposes
+    int precision;                 ///< Number of decimal places to print to the log for floats
 
     const QString timestampHeader; ///< Timestamp header field string
 
@@ -157,7 +160,7 @@ private:
      * @brief data Data to log
      * @return Log row
      */
-    QString buildLogLine(QList<QString> const& data);
+    QString buildLogLine(QVariantList const& data);
 
 };
 

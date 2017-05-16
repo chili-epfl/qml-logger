@@ -38,6 +38,7 @@ CSVLogger::CSVLogger(QQuickItem* parent) :
     logTime = true;
     logMillis = true;
     toConsole = false;
+    precision = 2;
 
     fileNeedsReopen = false;
     writing = false;
@@ -54,7 +55,7 @@ void CSVLogger::close(){
     writing = false;
 }
 
-inline QString CSVLogger::buildLogLine(QList<QString> const& data){
+inline QString CSVLogger::buildLogLine(QVariantList const& data){
     QString line = "";
 
     //Timestamp
@@ -71,10 +72,13 @@ inline QString CSVLogger::buildLogLine(QList<QString> const& data){
     if(data.size() > 0){
         if(logTime)
             line += ", ";
-        line += data.at(0);
+        QVariant datum = data.at(0);
+        line += (datum.type() == QVariant::Double ? QString::number(datum.toReal(), 'f', precision) : datum.toString());
     }
-    for(int i = 1; i < data.size(); i++)
-        line += ", " + data.at(i);
+    for(int i = 1; i < data.size(); i++){
+        QVariant datum = data.at(i);
+        line += ", " + (datum.type() == QVariant::Double ? QString::number(datum.toReal(), 'f', precision) : datum.toString());
+    }
 
     return line;
 }
@@ -129,7 +133,7 @@ void CSVLogger::setHeader(QList<QString> const& header){
     }
 }
 
-void CSVLogger::log(QList<QString> const& data){
+void CSVLogger::log(QVariantList const& data){
     if(!isEnabled())
         return;
 
