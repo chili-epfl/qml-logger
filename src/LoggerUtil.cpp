@@ -28,6 +28,10 @@
 #include<QBluetoothLocalDevice>
 #include<QNetworkInterface>
 
+#ifdef ANDROID
+    #include <QtAndroid>
+#endif
+
 LoggerUtil::LoggerUtil(QQuickItem* parent) : QQuickItem(parent){ }
 
 LoggerUtil::~LoggerUtil(){ }
@@ -80,4 +84,22 @@ QString LoggerUtil::getUniqueDeviceID(){
 
     deviceId.replace(" ", "_");
     return deviceId;
+}
+
+bool LoggerUtil::androidSyncPermission(QString const& permission){
+#ifdef ANDROID
+    QtAndroid::PermissionResult permissionResult = QtAndroid::checkPermission(permission);
+    if(permissionResult == QtAndroid::PermissionResult::Denied){
+        QtAndroid::requestPermissionsSync(QStringList() << permission);
+        permissionResult = QtAndroid::checkPermission(permission);
+        if(permissionResult == QtAndroid::PermissionResult::Denied){
+            qCritical() << "LoggerUtil::androidSyncPermission(): Could not get permission, logging will not work!";
+            return false;
+        }
+    }
+    return true;
+#else
+    Q_UNUSED(permission);
+    return true;
+#endif
 }

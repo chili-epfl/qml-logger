@@ -22,6 +22,7 @@
  * @date 2016-06-15
  */
 
+#include "LoggerUtil.h"
 #include "CSVLogger.h"
 
 #include <QDir>
@@ -32,8 +33,8 @@
 #include <QBluetoothLocalDevice>
 
 CSVLogger::CSVLogger(QQuickItem* parent) :
-    QQuickItem(parent),
-    timestampHeader("timestamp")
+        QQuickItem(parent),
+        timestampHeader("timestamp")
 {
     logTime = true;
     logMillis = true;
@@ -42,6 +43,9 @@ CSVLogger::CSVLogger(QQuickItem* parent) :
 
     fileNeedsReopen = false;
     writing = false;
+
+    LoggerUtil::androidSyncPermission("android.permission.WRITE_EXTERNAL_STORAGE");
+    LoggerUtil::androidSyncPermission("android.permission.READ_EXTERNAL_STORAGE");
 }
 
 CSVLogger::~CSVLogger(){
@@ -156,7 +160,7 @@ void CSVLogger::log(QVariantList const& data){
 
         file.setFileName(filename);
         if(!file.open(QIODevice::WriteOnly | QIODevice::Append)){
-            qCritical() << "CSVLogger::log(): Could not open file.";
+            qCritical() << "CSVLogger::log(): Could not open file: " << file.errorString();
             return;
         }
         else

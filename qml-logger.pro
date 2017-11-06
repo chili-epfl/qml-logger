@@ -5,6 +5,7 @@ CONFIG += qt plugin c++11
 CONFIG -= android_install
 
 QT += qml quick bluetooth
+android { QT += androidextras }
 
 QMAKE_CXXFLAGS -= -O2
 QMAKE_CXXFLAGS_RELEASE -= -O2

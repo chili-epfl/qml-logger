@@ -39,6 +39,9 @@ SimpleLogger::SimpleLogger(QQuickItem* parent) : QQuickItem(parent){
     fileNeedsReopen = false;
 
     deviceId = "[" + LoggerUtil::getUniqueDeviceID() + "] ";
+
+    LoggerUtil::androidSyncPermission("android.permission.WRITE_EXTERNAL_STORAGE");
+    LoggerUtil::androidSyncPermission("android.permission.READ_EXTERNAL_STORAGE");
 }
 
 SimpleLogger::~SimpleLogger(){
@@ -95,7 +98,7 @@ void SimpleLogger::log(const QString& data){
 
         file.setFileName(filename);
         if(!file.open(QIODevice::WriteOnly | QIODevice::Append)){
-            qCritical() << "SimpleLogger::log(): Could not open file.";
+            qCritical() << "SimpleLogger::log(): Could not open file: " << file.errorString();
             return;
         }
         else

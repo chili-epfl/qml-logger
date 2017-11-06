@@ -49,6 +49,14 @@ public:
      */
     ~LoggerUtil();
 
+    /**
+     * @brief Checks and requests Android permission if not given yet
+     *
+     * @param  permission Permission such as "android.permission.WRITE_EXTERNAL_STORAGE"
+     * @return Whether successfully got the permission; true on non-Android platform
+     */
+    static bool androidSyncPermission(QString const& permission);
+
 public slots:
 
     /**
