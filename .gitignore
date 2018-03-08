@@ -1,5 +1,6 @@
 #Temp build files
 build*/
+xml/
 
 #Temp QT files
 *.user

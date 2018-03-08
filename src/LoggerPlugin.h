@@ -28,6 +28,10 @@
 #include <QQmlExtensionPlugin>
 #include <qqml.h>
 
+namespace QMLLogger{
+
+/** @cond DO_NOT_DOCUMENT */
+
 class LoggerPlugin : public QQmlExtensionPlugin {
     /* *INDENT-OFF* */
     Q_OBJECT
@@ -37,5 +41,9 @@ class LoggerPlugin : public QQmlExtensionPlugin {
 public:
     void registerTypes(const char* uri);
 };
+
+/** @endcond */
+
+}
 
 #endif /* LOGGERPLUGIN_H */

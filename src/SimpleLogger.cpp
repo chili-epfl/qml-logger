@@ -30,6 +30,8 @@
 
 #include "LoggerUtil.h"
 
+namespace QMLLogger{
+
 SimpleLogger::SimpleLogger(QQuickItem* parent) : QQuickItem(parent){
     logTime = true;
     logMillis = true;
@@ -114,4 +116,6 @@ void SimpleLogger::log(const QString& data){
     }
     else
         qCritical() << "SimpleLogger::log(): File is not open, valid filename must be provided beforehand.";
+}
+
 }

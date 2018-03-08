@@ -29,18 +29,42 @@
 #include <QString>
 #include <QFile>
 
+namespace QMLLogger{
+
+/**
+ * @brief Utility to log strings line by line with optional timestamp and unique device ID.
+ *
+ * Unless given a full path, this will dump all log actions to the file with the given name under the Documents
+ * directory of the current user, whatever this is configured as under the specific OS. Every call to the
+ * `log(string data)` slot will result in a line as follows in the log file:
+ *
+ * ```
+ *     [timestamp in yyyy-MM-dd HH:mm:ss.zzz format if enabled] [unique device ID if enabled] data
+ * ```
+ */
 class SimpleLogger : public QQuickItem {
     /* *INDENT-OFF* */
     Q_OBJECT
     /* *INDENT-ON* */
 
+    /** @brief Desired log filename; if full path is not given, log file will be put in default documents directory */
     Q_PROPERTY(QString filename WRITE setFilename READ getFilename NOTIFY filenameChanged)
+
+    /** @brief Whether to include the timestamp in every log line, default true */
     Q_PROPERTY(bool logTime MEMBER logTime)
+
+    /** @brief Whether to include milliseconds in date and time, default true */
     Q_PROPERTY(bool logMillis MEMBER logMillis)
+
+    /** @brief Whether to include the local unique device info in every log line, default true */
     Q_PROPERTY(bool logDeviceInfo MEMBER logDeviceInfo)
+
+    /** @brief Whether to print the log lines to the console for debug purposes, default false */
     Q_PROPERTY(bool toConsole MEMBER toConsole)
 
 public:
+
+    /** @cond DO_NOT_DOCUMENT */
 
     /**
      * @brief Creates a new SimpleLogger with the given QML parent
@@ -68,12 +92,18 @@ public:
      */
     QString getFilename(){ return filename; }
 
+    /** @endcond */
+
 signals:
+
+    /** @cond DO_NOT_DOCUMENT */
 
     /**
      * @brief Emitted when filename changes
      */
     void filenameChanged();
+
+    /** @endcond */
 
 public slots:
 
@@ -107,5 +137,7 @@ private:
     QString linePrefix();
 
 };
+
+}
 
 #endif /* SIMPLELOGGER_H */

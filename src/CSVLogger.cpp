@@ -32,6 +32,8 @@
 #include <QNetworkInterface>
 #include <QBluetoothLocalDevice>
 
+namespace QMLLogger{
+
 CSVLogger::CSVLogger(QQuickItem* parent) :
         QQuickItem(parent),
         timestampHeader("timestamp")
@@ -183,4 +185,6 @@ void CSVLogger::log(QVariantList const& data){
     }
     else
         qCritical() << "CSVLogger::log(): File is not open, valid filename must be provided beforehand.";
+}
+
 }

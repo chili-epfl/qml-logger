@@ -30,19 +30,52 @@
 #include <QFile>
 #include <QVariant>
 
+namespace QMLLogger{
+
+/**
+ * @brief Utility to log CSV data line by line with optional timestamp.
+ *
+ * Unless given a full path, this will dump all log actions to the file with the given name under the Documents
+ * directory of the current user, whatever this is configured as under the specific OS. At the first call to the
+ * `log(list<string> data)` slot, if the log file is empty or newly created, a header will be dumped to the file as
+ * follows:
+ *
+ * ```
+ *     timestamp if enabled, header[0], header[1], ..., header[N - 1]
+ * ```
+ *
+ * After that, every call to the `log(list<string> data)` slot will result in a line as follows in the log file:
+ *
+ * ```
+ *     timestamp in yyyy-MM-dd HH:mm:ss.zzz format if enabled, data[0], data[1], ..., data[N - 1]
+ * ```
+ */
 class CSVLogger : public QQuickItem {
     /* *INDENT-OFF* */
     Q_OBJECT
     /* *INDENT-ON* */
 
+    /** @brief Desired log filename; if full path is not given, log file will be put in default documents directory */
     Q_PROPERTY(QString filename WRITE setFilename READ getFilename NOTIFY filenameChanged)
+
+    /** @brief Whether to include the timestamp in every log line as the first field, cannot be changed after a call to `log()` until a call to `close()`, default `true` */
     Q_PROPERTY(bool logTime WRITE setLogTime READ getLogTime NOTIFY logTimeChanged)
+
+    /** @brief Whether to include milliseconds in date and time, default `true` */
     Q_PROPERTY(bool logMillis MEMBER logMillis)
+
+    /** @brief Whether to print the log lines to the console for debug purposes, default `false` */
     Q_PROPERTY(bool toConsole MEMBER toConsole)
+
+    /** @brief Number of decimal places for printing floating point numbers, default `2`*/
     Q_PROPERTY(int precision MEMBER precision)
+
+    /** @brief Header fields (excluding timestamp), cannot be changed after a call to `log()` until a call to `close()`, default `[]` */
     Q_PROPERTY(QList<QString> header WRITE setHeader READ getHeader NOTIFY headerChanged)
 
 public:
+
+    /** @cond DO_NOT_DOCUMENT */
 
     /**
      * @brief Creates a new CSVLogger with the given QML parent
@@ -98,7 +131,11 @@ public:
      */
     QList<QString> getHeader(){ return header; }
 
+    /** @endcond */
+
 signals:
+
+    /** @cond DO_NOT_DOCUMENT */
 
     /**
      * @brief Emitted when filename changes
@@ -114,6 +151,8 @@ signals:
      * @brief Emitted when the header changes
      */
     void headerChanged();
+
+    /** @endcond */
 
 public slots:
 
@@ -163,5 +202,7 @@ private:
     QString buildLogLine(QVariantList const& data);
 
 };
+
+}
 
 #endif /* CSVLOGGER_H */

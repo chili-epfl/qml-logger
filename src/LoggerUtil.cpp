@@ -32,6 +32,8 @@
     #include <QtAndroid>
 #endif
 
+namespace QMLLogger{
+
 LoggerUtil::LoggerUtil(QQuickItem* parent) : QQuickItem(parent){ }
 
 LoggerUtil::~LoggerUtil(){ }
@@ -102,4 +104,6 @@ bool LoggerUtil::androidSyncPermission(QString const& permission){
     Q_UNUSED(permission);
     return true;
 #endif
+}
+
 }

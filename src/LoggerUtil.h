@@ -28,14 +28,25 @@
 #include<QQuickItem>
 #include<QString>
 
+namespace QMLLogger{
+
+/**
+ * @brief Logger utilities
+ * @singleton
+ */
 class LoggerUtil : public QQuickItem {
     /* *INDENT-OFF* */
     Q_OBJECT
     /* *INDENT-ON* */
 
+    /**
+     * @brief Constant, unique device ID (without spaces) if possible, non-unique ID if not
+     */
     Q_PROPERTY(QString uniqueDeviceID CONSTANT READ getUniqueDeviceID)
 
 public:
+
+    /** @cond DO_NOT_DOCUMENT */
 
     /**
      * @brief Creates a new LoggerUtil with the given QML parent
@@ -57,7 +68,11 @@ public:
      */
     static bool androidSyncPermission(QString const& permission);
 
+    /** @endcond */
+
 public slots:
+
+    /** @cond DO_NOT_DOCUMENT */
 
     /**
      * @brief Gets the unique device ID
@@ -66,6 +81,10 @@ public slots:
      */
     static QString getUniqueDeviceID();
 
+    /** @endcond */
+
 };
+
+}
 
 #endif /* LOGGERUTIL_H */
