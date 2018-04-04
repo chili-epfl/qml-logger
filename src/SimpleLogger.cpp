@@ -92,7 +92,13 @@ void SimpleLogger::log(const QString& data){
         if(dir.isAbsolute())
             qDebug() << "SimpleLogger::log(): Opening " + filename + " to log.";
         else{
-            filename = QStandardPaths::writableLocation(QStandardPaths::StandardLocation::DocumentsLocation) + "/" + filename;
+            filename =
+                #if defined(Q_OS_WIN)
+                    QStandardPaths::writableLocation(QStandardPaths::StandardLocation::AppDataLocation)
+                #else
+                    QStandardPaths::writableLocation(QStandardPaths::StandardLocation::DocumentsLocation)
+                #endif
+                + "/" + filename;
             qDebug() << "SimpleLogger::log(): Absolute path not given, opening " + filename + " to log.";
             emit filenameChanged();
         }
