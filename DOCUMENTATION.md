@@ -23,7 +23,11 @@ class QMLLogger::CSVLogger
 
 Utility to log CSV data line by line with optional timestamp.
 
-Unless given a full path, this will dump all log actions to the file with the given name under the Documents directory of the current user, whatever this is configured as under the specific OS. At the first call to the `log(list<string> data)` slot, if the log file is empty or newly created, a header will be dumped to the file as follows:
+Unless given a full path, this will dump all log actions to the file with the given name under the Documents directory of the current user, whatever this is configured as under the specific OS, except Windows.
+
+On Windows, the log file will be put under the local data directory of the app since access is not given to write to any other directory than this within WinRT sandboxing. This will typically be C:-username-uuid. Be careful when using the Run button in QtCreator, as this will destroy this directory each time the app is launched, taking your potentially valuable data with it! Instead, launch your app from the Start Menu, which will preserve this directory.
+
+At the first call to the `log(list<string> data)` slot, if the log file is empty or newly created, a header will be dumped to the file as follows:
 
 ```cpp
 timestamp if enabled, header[0], header[1], ..., header[N - 1]
@@ -129,7 +133,11 @@ class QMLLogger::SimpleLogger
 
 Utility to log strings line by line with optional timestamp and unique device ID.
 
-Unless given a full path, this will dump all log actions to the file with the given name under the Documents directory of the current user, whatever this is configured as under the specific OS. Every call to the `log(string data)` slot will result in a line as follows in the log file:
+Unless given a full path, this will dump all log actions to the file with the given name under the Documents directory of the current user, whatever this is configured as under the specific OS, except Windows.
+
+On Windows, the log file will be put under the local data directory of the app since access is not given to write to any other directory than this within WinRT sandboxing. This will typically be C:-username-uuid. Be careful when using the Run button in QtCreator, as this will destroy this directory each time the app is launched, taking your potentially valuable data with it! Instead, launch your app from the Start Menu, which will preserve this directory.
+
+Every call to the `log(string data)` slot will result in a line as follows in the log file:
 
 ```cpp
 [timestamp in yyyy-MM-dd HH:mm:ss.zzz format if enabled] [unique device ID if enabled] data
