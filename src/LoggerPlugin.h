@@ -16,6 +16,12 @@
  */
 
 /**
+ * @mainpage qml-logger
+ *
+ * qml-logger is a file logging plugin that enables logging data to given file from QML. See README.md for more information.
+ */
+
+/**
  * @file LoggerPlugin.h
  * @brief Object that exposes the Logger plugin components as QML objects
  * @author Ayberk Özgür
