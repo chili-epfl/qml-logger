@@ -5,6 +5,7 @@ CONFIG += qt plugin c++11
 CONFIG -= android_install
 
 QT += qml quick bluetooth
+QT += network
 android { QT += androidextras }
 
 unix {
@@ -16,19 +17,23 @@ unix {
 }
 
 TARGET = $$qtLibraryTarget($$TARGET)
-uri = Logger
+uri = RLogger
 
 HEADERS += \
     src/LoggerPlugin.h \
     src/LoggerUtil.h \
     src/SimpleLogger.h \
-    src/CSVLogger.h
+    src/CSVLogger.h \
+    src/RCSVLogger.h \
+    src/Server.h
 
 SOURCES += \
     src/LoggerPlugin.cpp \
     src/LoggerUtil.cpp \
     src/SimpleLogger.cpp \
-    src/CSVLogger.cpp
+    src/CSVLogger.cpp \
+    src/RCSVLogger.cpp \
+    src/Server.cpp
 
 OTHER_FILES += qmldir
 

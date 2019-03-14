@@ -89,7 +89,7 @@ public:
      *
      * @param parent The QML parent
      */
-    CSVLogger(QQuickItem* parent = 0);
+    CSVLogger(QQuickItem* parent = nullptr);
 
     /**
      * @brief Destroys this CSVLogger
