@@ -31,6 +31,7 @@
 #include <QNetworkInterface>
 #include <QBluetoothLocalDevice>
 
+
 namespace QMLLogger{
 
 RCSVLogger::RCSVLogger(QQuickItem* parent) :
@@ -42,18 +43,20 @@ RCSVLogger::RCSVLogger(QQuickItem* parent) :
     logMillis = true;
     toConsole = false;
     precision = 2;
-
     writing = false;
+    serverURL="http://127.0.0.1:8000";
 
-    serverIp="127.0.0.1";
-    port=2000;
-
+    manager = new QNetworkAccessManager(this);
+    manager->setNetworkAccessible(QNetworkAccessManager::Accessible);
+    connect(manager, SIGNAL(finished(QNetworkReply*)), this, SLOT(quit()));
     LoggerUtil::androidSyncPermission("android.permission.WRITE_EXTERNAL_STORAGE");
     LoggerUtil::androidSyncPermission("android.permission.READ_EXTERNAL_STORAGE");
 }
 
 RCSVLogger::~RCSVLogger(){
-    close();
+    updateLocal();
+    updateRemote();
+    delete manager;
 }
 
 void RCSVLogger::updateLocal(){
@@ -61,66 +64,78 @@ void RCSVLogger::updateLocal(){
         if(logManager.contains(path)){
             logManager[path].first()+=CSVLogWriter(path,updates[path]);
         } else {
-            logManager[path]={CSVLogWriter(path,updates[path])+1,0};
+            logManager[path]={CSVLogWriter(path,updates[path]),0};
         }
     }
     saveLogManager();
 }
 
 void RCSVLogger::updateRemote(){
-    QTcpSocket* socket=new QTcpSocket(this);
-    socket->connectToHost(serverIp,(quint16)port);
-    socket->waitForConnected();
-    foreach (QString path, updates.keys()) {
+    QNetworkRequest request;
+    request.setUrl(QUrl(serverURL));
+    request.setHeader( QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded" );
+    QUrlQuery data;
+    foreach (QString path, logManager.keys()) {
         if(logManager[path].first()>logManager[path].last()){
-
-            QList<QStringList> temp=CSVReader(path,logManager[path].last());
-            temp.append({path});
-            QByteArray data;
-            QDataStream stream(&data, QIODevice::ReadWrite);
-            stream << (qint32)temp.size();
-            socket->write(data);
-            stream << temp;
-            socket->write(data);
-            if(socket->waitForBytesWritten()){
-                logManager[path].last()=logManager[path].first();
+            qDebug() << "RCSVLogger::updateRemote(): Writing to remote";
+            QStringList lines=CSVReader(path,logManager[path].last());
+            QString localPath=path.split('/').last();
+            QString pastedLines=lines[0];
+            foreach (QString line, lines.mid(1)) {
+                pastedLines+=';'+line;
             }
+            data.addQueryItem(localPath,pastedLines);
         }
-
     }
+    QNetworkReply* reply=manager->post(request, data.toString(QUrl::FullyEncoded).toUtf8());
+    QEventLoop loop;
+    connect(reply, SIGNAL(finished()), &loop, SLOT(quit()));
+    loop.exec();
+    if(!reply->error()){
+        qDebug() << "RCSVLogger::updateRemote(): Write to remote successful";
+        foreach (QString path, logManager.keys()) {
+            logManager[path].last()=logManager[path].first();
+        }
+    } else {
+        qDebug() << "RCSVLogger::updateRemote(): Write to remote unsuccessful";
+    }
+    reply->deleteLater();
     saveLogManager();
-
 }
 
 int RCSVLogger::CSVLogWriter(QString path, QList<QVariantList> lines){
     QString absPath=absolutePath(path);
     QDir::root().mkpath(QFileInfo(absPath).absolutePath());
-
+    int bytes=0;
+    QString line;
     file.setFileName(absPath);
     if(!file.open(QIODevice::WriteOnly | QIODevice::Append)){
         qCritical() << "RCSVLogger::CSVLogWriter(): Could not open file: " << file.errorString();
         return 0;
     }
-    else
+    else {
         writer.setDevice(&file);
         writing = true;
-
-    //Build and dump header if file is empty or newly created
-    if(file.pos() == 0){
-        writer << buildHeaderString() << "\n";
-        writer.flush();
-     }
+    }
 
     //Actual writing
     if(file.isOpen()){
+        //Build and dump header if file is empty or newly created
+        if(file.pos() == 0){
+            line=buildHeaderString();
+            writer << line << "\n";
+            bytes+=line.length()+1;
+         }
         foreach(QVariantList qvl, lines){
-                writer << buildLogLine(qvl) << "\n";
+                line=buildLogLine(qvl);
+                writer << line << "\n";
+                bytes+=line.length()+1;
 
         }
         writer.flush();
         file.close();
         writing = false;
-        return lines.size();
+        return bytes;
 
     }
     else
@@ -131,7 +146,7 @@ int RCSVLogger::CSVLogWriter(QString path, QList<QVariantList> lines){
 int RCSVLogger::CSVManagementWriter(QString path, QList<QVariantList> lines){
     QString absPath=absolutePath(path);
     QDir::root().mkpath(QFileInfo(absPath).absolutePath());
-
+    int bytes=0;
     file.setFileName(absPath);
     if(!file.open(QIODevice::WriteOnly)){
         qCritical() << "RCSVLogger::CSVManagementWriter(): Could not open file: " << file.errorString();
@@ -158,17 +173,18 @@ int RCSVLogger::CSVManagementWriter(QString path, QList<QVariantList> lines){
                 line += ", " + (datum.type() == QVariant::Double ? QString::number(datum.toReal(), 'f', precision) : datum.toString());
             }
             writer << line << "\n";
+            bytes+=line.length()+1;
         }
         writer.flush();
         file.close();
-        return lines.size();
+        return bytes;
     }
     else
         qCritical() << "RCSVLogger::CSVManagementWriter(): File is not open, valid filename must be provided beforehand.";
         return 0;
 }
 
-QList<QStringList> RCSVLogger::CSVReader(QString path, int from){
+QStringList RCSVLogger::CSVReader(QString path, int from){
     QString absPath=absolutePath(path);
     QDir::root().mkpath(QFileInfo(absPath).absolutePath());
 
@@ -180,12 +196,12 @@ QList<QStringList> RCSVLogger::CSVReader(QString path, int from){
 
     //Actual reading
     if(file.isOpen()){
+        QStringList lines;
         file.seek(from);
-        QList<QStringList> lines;
-           while (!file.atEnd()) {
-               QString line = file.readLine();
-               lines.append(line.split(','));
-           }
+        while (!file.atEnd()) {
+            QString line = file.readLine();
+            lines.append(line);
+        }
         file.close();
         return lines;
     }
@@ -196,13 +212,13 @@ QList<QStringList> RCSVLogger::CSVReader(QString path, int from){
 
 QMap<QString,QList<int>> RCSVLogger::loadLogManager(){
     QMap<QString,QList<int>> lm;
-    QList<QStringList> lines=CSVReader(logManagerPath,0);
-    foreach (QStringList line, lines) {
+    QStringList lines=CSVReader(logManagerPath,0);
+    foreach (QString line, lines) {
         QList<int> temp;
-        foreach (QString str, line.mid(1)) {
+        foreach (QString str, line.split(',').mid(1)) {
             temp.append(str.toInt());
         }
-        lm[line.first()]=temp;
+        lm[line.split(',').first()]=temp;
     }
     return lm;
 }
@@ -222,10 +238,10 @@ void RCSVLogger::saveLogManager(){
 QString RCSVLogger::absolutePath(QString path){
     QDir dir(path);
     if(dir.isAbsolute()) {
-        qDebug() << "RCSVLogger::log(): Opening " + path + " to log.";
+        qDebug() << "RCSVLogger::absolutePath(): Opening " + path;
         return path;
     } else{
-        qDebug() << "RCSVLogger::log(): Absolute path not given, opening " + path + " to log.";
+        qDebug() << "RCSVLogger::absolutePath(): Absolute path not given, opening " + path;
         return
             #if defined(Q_OS_WIN)
                 QStandardPaths::writableLocation(QStandardPaths::StandardLocation::AppDataLocation)
@@ -236,10 +252,6 @@ QString RCSVLogger::absolutePath(QString path){
     }
 }
 
-void RCSVLogger::close(){
-    updateLocal();
-    updateRemote();
-}
 
 inline QString RCSVLogger::buildLogLine(QVariantList const& data){
     QString line = "";
@@ -311,9 +323,6 @@ void RCSVLogger::setHeader(QList<QString> const& header){
 }
 
 void RCSVLogger::log(QVariantList const& data){
-    if(!isEnabled())
-        return;
-
     if(toConsole){
         qDebug() << buildLogLine(data);
         return;

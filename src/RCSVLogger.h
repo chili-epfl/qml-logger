@@ -30,10 +30,16 @@
 #include <QFile>
 #include <QVariant>
 #include <QtCore>
-#include <QtNetwork>
+#include <QNetworkAccessManager>
 #include <QMap>
 #include <QStringList>
-
+#include <QtCore>
+#include <QObject>
+#include <QIODevice>
+#include <QByteArray>
+#include <QMetaObject>
+#include <QtNetwork>
+#include <QUrl>
 namespace QMLLogger {
 
 /**
@@ -85,10 +91,7 @@ namespace QMLLogger {
         Q_PROPERTY(QList<QString> header WRITE setHeader READ getHeader NOTIFY headerChanged)
 
         /** @brief IP of the database server */
-        Q_PROPERTY(QString serverIp MEMBER serverIp)
-
-        /** @brief Port the database server uses to receive information*/
-        Q_PROPERTY(int port MEMBER port)
+        Q_PROPERTY(QString serverURL MEMBER serverURL)
     public:
         /** @cond DO_NOT_DOCUMENT */
 
@@ -166,7 +169,6 @@ namespace QMLLogger {
          * @brief Emitted when the header changes
          */
         void headerChanged();
-
         /** @endcond */
 
     public slots:
@@ -177,11 +179,6 @@ namespace QMLLogger {
          * @param data Data to log, must conform to the header format if meaningful log is desired
          */
         void log(QVariantList const& data);
-
-        /**
-         * @brief Closes the log file
-         */
-        void close();
 
     private:
 
@@ -202,10 +199,11 @@ namespace QMLLogger {
 
         const QString logManagerPath="logManager.csv"; ///< Path to the log manager
 
-        QString serverIp; ///< IP of the database server
-        int port; ///< Port the database server uses to receive information
+        QString serverURL; ///< IP of the database server
         QMap<QString,QList<int>> logManager; ///< Map linking each file to the number of lines they contain localy and remotely
         QMap<QString,QList<QVariantList>> updates; ///< Map linking each file to the lines yet to be written localy
+
+        QNetworkAccessManager *manager; ///< Network manager
 
         /**
          * @brief Builds and gets the header string
@@ -246,10 +244,10 @@ namespace QMLLogger {
         /**
          * @brief Loads all lines of a given file starting from a given row number
          * @param path Path to the file
-         * @param from Number of the first read row
+         * @param from Number of the first read byte
          * @return List of all read rows
          */
-        QList<QStringList> CSVReader(QString path, int from);
+        QStringList CSVReader(QString path, int from);
 
         /**
          * @brief Writes all given lines at the given index of the given file
@@ -257,7 +255,7 @@ namespace QMLLogger {
          * @param lines List of the rows to write
          * @param from Index from which the given lines must be written (at the end of the file by default)
          * @param log True if the lines to write are logs (false by default)
-         * @return Amount of lines written
+         * @return Amount of bytes written
          */
         int CSVLogWriter(QString path, QList<QVariantList> lines);
 
@@ -267,7 +265,7 @@ namespace QMLLogger {
          * @param lines List of the rows to write
          * @param from Index from which the given lines must be written (at the end of the file by default)
          * @param log True if the lines to write are logs (false by default)
-         * @return Amount of lines written
+         * @return Amount of bytes written
          */
         int CSVManagementWriter(QString path, QList<QVariantList> lines);
 
@@ -277,7 +275,6 @@ namespace QMLLogger {
          * @return Absolute path to the file
          */
         QString absolutePath(QString path);
-
     };
 
 }
