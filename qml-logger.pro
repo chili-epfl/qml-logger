@@ -24,16 +24,14 @@ HEADERS += \
     src/LoggerUtil.h \
     src/SimpleLogger.h \
     src/CSVLogger.h \
-    src/RCSVLogger.h \
-    src/Server.h
+    src/RCSVLogger.h
 
 SOURCES += \
     src/LoggerPlugin.cpp \
     src/LoggerUtil.cpp \
     src/SimpleLogger.cpp \
     src/CSVLogger.cpp \
-    src/RCSVLogger.cpp \
-    src/Server.cpp
+    src/RCSVLogger.cpp
 
 OTHER_FILES += qmldir
 

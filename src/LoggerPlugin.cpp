@@ -28,7 +28,6 @@
 #include "SimpleLogger.h"
 #include "CSVLogger.h"
 #include "RCSVLogger.h"
-#include "Server.h"
 
 namespace QMLLogger{
 
@@ -42,7 +41,6 @@ void LoggerPlugin::registerTypes(const char* uri){
     qmlRegisterType<SimpleLogger>(uri, 1, 0, "SimpleLogger");
     qmlRegisterType<CSVLogger>(uri, 1, 0, "CSVLogger");
     qmlRegisterType<RCSVLogger>(uri, 1, 0, "RCSVLogger");
-    qmlRegisterType<Server>(uri, 1, 0, "Server");
 
 }
 

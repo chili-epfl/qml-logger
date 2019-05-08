@@ -44,7 +44,7 @@ RCSVLogger::RCSVLogger(QQuickItem* parent) :
     toConsole = false;
     precision = 2;
     writing = false;
-    serverURL="http://127.0.0.1:8000";
+    serverURL="http://127.0.0.1:8000/";
 
     manager = new QNetworkAccessManager(this);
     manager->setNetworkAccessible(QNetworkAccessManager::Accessible);
@@ -80,9 +80,9 @@ void RCSVLogger::updateRemote(){
             qDebug() << "RCSVLogger::updateRemote(): Writing to remote";
             QStringList lines=CSVReader(path,logManager[path].last());
             QString localPath=path.split('/').last();
-            QString pastedLines=lines[0];
-            foreach (QString line, lines.mid(1)) {
-                pastedLines+=';'+line;
+            QString pastedLines="";
+            foreach (QString line, lines) {
+                pastedLines+=line;
             }
             data.addQueryItem(localPath,pastedLines);
         }
