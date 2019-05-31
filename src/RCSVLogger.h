@@ -97,7 +97,6 @@ namespace QMLLogger {
 
         /**
          * @brief Creates a new RCSVLogger with the given QML parent
-         *
          * @param parent The QML parent
          */
         RCSVLogger(QQuickItem* parent = nullptr);
@@ -109,42 +108,36 @@ namespace QMLLogger {
 
         /**
          * @brief Sets the file name; puts file to home directory if full path is not given
-         *
          * @param filename The new filename, or full path
          */
         void setFilename(const QString& filename);
 
         /**
          * @brief Gets the filename
-         *
          * @return The filename
          */
         QString getFilename(){ return filename; }
 
         /**
          * @brief Sets whether to log the timestamp as the first field, has no effect after the first log()
-         *
          * @param logTime Whether to log the timestamp as the first field
          */
         void setLogTime(bool logTime);
 
         /**
          * @brief Gets whether the timestamp is being logged
-         *
          * @return Whether the timestamp is being logged
          */
         bool getLogTime(){ return logTime; }
 
         /**
          * @brief Sets the new header to be dumped to the log file on its first open if it's empty
-         *
          * @param header New header
          */
         void setHeader(QList<QString> const& header);
 
         /**
          * @brief Gets the current header
-         *
          * @return The current header
          */
         QList<QString> getHeader(){ return header; }
@@ -175,7 +168,6 @@ namespace QMLLogger {
 
         /**
          * @brief Logs given data as one entry
-         *
          * @param data Data to log, must conform to the header format if meaningful log is desired
          */
         void log(QVariantList const& data);
@@ -195,7 +187,7 @@ namespace QMLLogger {
         bool toConsole;                ///< Log to console instead of file for debug purposes
         int precision;                 ///< Number of decimal places to print to the log for floats
 
-        const QString timestampHeader; ///< Timestamp header field string
+        const QString timestampHeader="timestamp"; ///< Timestamp header field string
 
         const QString logManagerPath="logManager.csv"; ///< Path to the log manager
 
@@ -207,14 +199,12 @@ namespace QMLLogger {
 
         /**
          * @brief Builds and gets the header string
-         *
          * @return Header string, including the timestamp as the first field if logTime is true
          */
         QString buildHeaderString();
 
         /**
          * @brief Builds and gets the log row
-         *
          * @param data Data to log
          * @return Log row
          */
@@ -253,8 +243,6 @@ namespace QMLLogger {
          * @brief Writes all given lines at the given index of the given file
          * @param path Path to the file
          * @param lines List of the rows to write
-         * @param from Index from which the given lines must be written (at the end of the file by default)
-         * @param log True if the lines to write are logs (false by default)
          * @return Amount of bytes written
          */
         int CSVLogWriter(QString path, QList<QVariantList> lines);
@@ -263,8 +251,6 @@ namespace QMLLogger {
          * @brief Writes all given lines at the given index of the given file
          * @param path Path to the file
          * @param lines List of the rows to write
-         * @param from Index from which the given lines must be written (at the end of the file by default)
-         * @param log True if the lines to write are logs (false by default)
          * @return Amount of bytes written
          */
         int CSVManagementWriter(QString path, QList<QVariantList> lines);

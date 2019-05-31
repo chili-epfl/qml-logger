@@ -36,7 +36,6 @@ namespace QMLLogger{
 
 RCSVLogger::RCSVLogger(QQuickItem* parent) :
         QQuickItem(parent),
-        timestampHeader("timestamp"),
         logManager(loadLogManager())
 {
     logTime = true;
@@ -64,7 +63,7 @@ void RCSVLogger::updateLocal(){
         if(logManager.contains(path)){
             logManager[path].first()+=CSVLogWriter(path,updates[path]);
         } else {
-            logManager[path]={CSVLogWriter(path,updates[path]),0};
+            logManager[path]={CSVLogWriter(path,updates[path]), 0};
         }
     }
     saveLogManager();
@@ -160,10 +159,6 @@ int RCSVLogger::CSVManagementWriter(QString path, QList<QVariantList> lines){
         file.seek(0);
         foreach(QVariantList qvl, lines){
             QString line = "";
-
-            //Rest of data
-            if(qvl.size() != header.size())
-                qWarning() << "RCSVLogger::CSVManagementWriter(): Data and header don't have the same length, log file will not be correct.";
             if(qvl.size() > 0){
                 QVariant datum = qvl.at(0);
                 line += (datum.type() == QVariant::Double ? QString::number(datum.toReal(), 'f', precision) : datum.toString());
@@ -257,11 +252,12 @@ inline QString RCSVLogger::buildLogLine(QVariantList const& data){
     QString line = "";
 
     //Timestamp
+
     if(logTime){
         if(logMillis)
-            line += QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss.zzz");
+            line += QString::number(QDateTime::currentMSecsSinceEpoch());
         else
-            line += QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss");
+            line += QString::number(QDateTime::currentSecsSinceEpoch());
     }
 
     //Rest of data
