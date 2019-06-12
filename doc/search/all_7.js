@@ -1,4 +1,6 @@
 var searchData=
 [
-  ['toconsole',['toConsole',['../classQMLLogger_1_1CSVLogger.html#af599b63efe8319311d9a5655c3b75569',1,'QMLLogger::CSVLogger::toConsole()'],['../classQMLLogger_1_1SimpleLogger.html#a4aa4bab85434ff1a7ef8ca5556ba5351',1,'QMLLogger::SimpleLogger::toConsole()']]]
+  ['rcsvlogger',['RCSVLogger',['../classQMLLogger_1_1RCSVLogger.html',1,'QMLLogger::RCSVLogger'],['../classRCSVLogger.html',1,'RCSVLogger']]],
+  ['rcsvlogger_2ecpp',['RCSVLogger.cpp',['../RCSVLogger_8cpp.html',1,'']]],
+  ['rcsvlogger_2eh',['RCSVLogger.h',['../RCSVLogger_8h.html',1,'']]]
 ];

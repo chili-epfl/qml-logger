@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['simplelogger',['SimpleLogger',['../classQMLLogger_1_1SimpleLogger.html',1,'QMLLogger']]]
+  ['rcsvlogger',['RCSVLogger',['../classQMLLogger_1_1RCSVLogger.html',1,'QMLLogger::RCSVLogger'],['../classRCSVLogger.html',1,'RCSVLogger']]]
 ];

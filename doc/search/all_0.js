@@ -1,7 +1,4 @@
 var searchData=
 [
-  ['close',['close',['../classQMLLogger_1_1CSVLogger.html#a77f7a8148fd1556c6342c84ef45232c0',1,'QMLLogger::CSVLogger']]],
-  ['csvlogger',['CSVLogger',['../classQMLLogger_1_1CSVLogger.html',1,'QMLLogger']]],
-  ['csvlogger_2ecpp',['CSVLogger.cpp',['../CSVLogger_8cpp.html',1,'']]],
-  ['csvlogger_2eh',['CSVLogger.h',['../CSVLogger_8h.html',1,'']]]
+  ['abspath',['absPath',['../classQMLLogger_1_1RCSVLogger.html#a05ab52178a14c35304850123365e008c',1,'QMLLogger::RCSVLogger']]]
 ];

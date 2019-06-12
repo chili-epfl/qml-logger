@@ -1,6 +1,0 @@
-<map id="src/LoggerUtil.h" name="src/LoggerUtil.h">
-<area shape="rect" id="node2" href="$CSVLogger_8cpp.html" title="Source for a QML CSV file logger. " alt="" coords="5,80,141,107"/>
-<area shape="rect" id="node3" href="$LoggerPlugin_8cpp.html" title="Implementation of the object that exposes the Logger plugin components as QML objects. " alt="" coords="165,80,309,107"/>
-<area shape="rect" id="node4" href="$LoggerUtil_8cpp.html" title="Logger utilities header. " alt="" coords="333,80,461,107"/>
-<area shape="rect" id="node5" href="$SimpleLogger_8cpp.html" title="Source for a simple line&#45;by&#45;line logger. " alt="" coords="486,80,634,107"/>
-</map>

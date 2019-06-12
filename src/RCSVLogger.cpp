@@ -17,48 +17,52 @@
 
 /**
  * @file RCSVLogger.cpp
- * @brief Source for a QML CSV file logger for online databases
+ * @brief Source for a QML CSV file logger with robust data transfer capability
  * @author Alexandre Reynaud
  * @date 2019-03-14
  */
 
 #include "LoggerUtil.h"
 #include "RCSVLogger.h"
-#include <QDir>
-#include <QStandardPaths>
-#include <QDateTime>
-#include <QSysInfo>
-#include <QNetworkInterface>
-#include <QBluetoothLocalDevice>
 
 
 namespace QMLLogger{
 
 RCSVLogger::RCSVLogger(QQuickItem* parent) :
         QQuickItem(parent),
+        absPath(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation)+"/Logs/"),
         logManager(loadLogManager())
 {
     logTime = true;
     logMillis = true;
     toConsole = false;
-    precision = 2;
     writing = false;
+    precision = 2;
     serverURL="http://127.0.0.1:8000/";
-
+    filename="data.csv";
+    header=QStringList();
     manager = new QNetworkAccessManager(this);
     manager->setNetworkAccessible(QNetworkAccessManager::Accessible);
-    connect(manager, SIGNAL(finished(QNetworkReply*)), this, SLOT(quit()));
     LoggerUtil::androidSyncPermission("android.permission.WRITE_EXTERNAL_STORAGE");
     LoggerUtil::androidSyncPermission("android.permission.READ_EXTERNAL_STORAGE");
 }
 
 RCSVLogger::~RCSVLogger(){
-    updateLocal();
-    updateRemote();
+    push();
     delete manager;
 }
 
+void RCSVLogger::push(){
+    if(updates.size()!=0){
+        updateLocal();
+        updates.clear();
+    }
+    updateRemote();
+    writing=false;
+}
+
 void RCSVLogger::updateLocal(){
+    qDebug() << "RCSVLogger::updateLocal(): Writing to local";
     foreach (QString path, updates.keys()) {
         if(logManager.contains(path)){
             logManager[path].first()+=CSVLogWriter(path,updates[path]);
@@ -74,66 +78,74 @@ void RCSVLogger::updateRemote(){
     request.setUrl(QUrl(serverURL));
     request.setHeader( QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded" );
     QUrlQuery data;
-    foreach (QString path, logManager.keys()) {
-        if(logManager[path].first()>logManager[path].last()){
-            qDebug() << "RCSVLogger::updateRemote(): Writing to remote";
-            QStringList lines=CSVReader(path,logManager[path].last());
-            QString localPath=path.split('/').last();
+
+    //Building JSON
+    foreach (QString name, logManager.keys()) {
+        if(logManager[name].first()>logManager[name].last()){
+            QStringList lines=CSVReader(name,logManager[name].last());
             QString pastedLines="";
             foreach (QString line, lines) {
                 pastedLines+=line;
             }
-            data.addQueryItem(localPath,pastedLines);
+            data.addQueryItem(name,pastedLines);
         }
     }
-    QNetworkReply* reply=manager->post(request, data.toString(QUrl::FullyEncoded).toUtf8());
-    QEventLoop loop;
-    connect(reply, SIGNAL(finished()), &loop, SLOT(quit()));
-    loop.exec();
-    if(!reply->error()){
-        qDebug() << "RCSVLogger::updateRemote(): Write to remote successful";
-        foreach (QString path, logManager.keys()) {
-            logManager[path].last()=logManager[path].first();
+    if (!data.isEmpty()){
+        qDebug() << "RCSVLogger::updateRemote(): Writing to remote";
+
+        //Sending to remote
+        QNetworkReply* reply=manager->post(request, data.toString(QUrl::FullyEncoded).toUtf8());
+        QEventLoop loop;
+        connect(reply, SIGNAL(finished()), &loop, SLOT(quit()));
+        loop.exec();
+
+        //Checking if the transfer was successful
+        if(!reply->error()){
+            qDebug() << "RCSVLogger::updateRemote(): Write to remote successful";
+            foreach (QString path, logManager.keys()) {
+                logManager[path].last()=logManager[path].first();
+            }
+        } else {
+            qDebug() << "RCSVLogger::updateRemote(): Write to remote unsuccessful";
         }
-    } else {
-        qDebug() << "RCSVLogger::updateRemote(): Write to remote unsuccessful";
+        delete reply;
+        saveLogManager();
     }
-    reply->deleteLater();
-    saveLogManager();
 }
 
-int RCSVLogger::CSVLogWriter(QString path, QList<QVariantList> lines){
-    QString absPath=absolutePath(path);
-    QDir::root().mkpath(QFileInfo(absPath).absolutePath());
+int RCSVLogger::CSVLogWriter(QString name, QStringList lines){
+
+    //Setup
+    QString path=absolutePath(name);
+    QDir::root().mkpath(QFileInfo(path).absolutePath());
     int bytes=0;
     QString line;
-    file.setFileName(absPath);
+    file.setFileName(path);
     if(!file.open(QIODevice::WriteOnly | QIODevice::Append)){
         qCritical() << "RCSVLogger::CSVLogWriter(): Could not open file: " << file.errorString();
         return 0;
     }
-    else {
+    else
         writer.setDevice(&file);
-        writing = true;
-    }
 
     //Actual writing
     if(file.isOpen()){
-        //Build and dump header if file is empty or newly created
+
+        //Dump of the header if file is empty or newly created
         if(file.pos() == 0){
-            line=buildHeaderString();
-            writer << line << "\n";
-            bytes+=line.length()+1;
+            writer << lines[0] << "\n";
+            bytes+=lines[0].length()+1;
          }
-        foreach(QVariantList qvl, lines){
-                line=buildLogLine(qvl);
+
+        //Dump of the log lines
+        foreach(QString line, lines.mid(1)){
                 writer << line << "\n";
                 bytes+=line.length()+1;
 
         }
+
         writer.flush();
         file.close();
-        writing = false;
         return bytes;
 
     }
@@ -142,11 +154,13 @@ int RCSVLogger::CSVLogWriter(QString path, QList<QVariantList> lines){
         return 0;
 }
 
-int RCSVLogger::CSVManagementWriter(QString path, QList<QVariantList> lines){
-    QString absPath=absolutePath(path);
-    QDir::root().mkpath(QFileInfo(absPath).absolutePath());
+int RCSVLogger::CSVManagementWriter(QString name, QStringList lines){
+
+    //Setup
+    QString path=absolutePath(name);
+    QDir::root().mkpath(QFileInfo(path).absolutePath());
     int bytes=0;
-    file.setFileName(absPath);
+    file.setFileName(path);
     if(!file.open(QIODevice::WriteOnly)){
         qCritical() << "RCSVLogger::CSVManagementWriter(): Could not open file: " << file.errorString();
         return 0;
@@ -157,16 +171,7 @@ int RCSVLogger::CSVManagementWriter(QString path, QList<QVariantList> lines){
     //Actual writing
     if(file.isOpen()){
         file.seek(0);
-        foreach(QVariantList qvl, lines){
-            QString line = "";
-            if(qvl.size() > 0){
-                QVariant datum = qvl.at(0);
-                line += (datum.type() == QVariant::Double ? QString::number(datum.toReal(), 'f', precision) : datum.toString());
-            }
-            for(int i = 1; i < qvl.size(); i++){
-                QVariant datum = qvl.at(i);
-                line += ", " + (datum.type() == QVariant::Double ? QString::number(datum.toReal(), 'f', precision) : datum.toString());
-            }
+        foreach(QString line, lines){
             writer << line << "\n";
             bytes+=line.length()+1;
         }
@@ -179,11 +184,12 @@ int RCSVLogger::CSVManagementWriter(QString path, QList<QVariantList> lines){
         return 0;
 }
 
-QStringList RCSVLogger::CSVReader(QString path, int from){
-    QString absPath=absolutePath(path);
-    QDir::root().mkpath(QFileInfo(absPath).absolutePath());
+QStringList RCSVLogger::CSVReader(QString name, int from){
 
-    file.setFileName(absPath);
+    //Setup
+    QString path=absolutePath(name);
+    QDir::root().mkpath(QFileInfo(path).absolutePath());
+    file.setFileName(path);
     if(!file.open(QIODevice::ReadOnly)){
         qCritical() << "RCSVLogger::CSVReader(): Could not open file: " << file.errorString();
         return {};
@@ -202,6 +208,7 @@ QStringList RCSVLogger::CSVReader(QString path, int from){
     }
     else
         qCritical() << "RCSVLogger::CSVReader(): File is not open, valid filename must be provided beforehand.";
+
     return {};
 }
 
@@ -219,40 +226,22 @@ QMap<QString,QList<int>> RCSVLogger::loadLogManager(){
 }
 
 void RCSVLogger::saveLogManager(){
-    QList<QVariantList> lines;
-    foreach (QString path, logManager.keys()) {
-        QVariantList line;
-        line.append(path);
-        line.append(logManager[path].first());
-        line.append(logManager[path].last());
+    QStringList lines;
+    foreach (QString name, logManager.keys()) {
+        QString line=name+", "+QString::number(logManager[name].first())+", "+QString::number(logManager[name].last());
         lines.append(line);
     }
     CSVManagementWriter(logManagerPath,lines);
 }
 
-QString RCSVLogger::absolutePath(QString path){
-    QDir dir(path);
-    if(dir.isAbsolute()) {
-        qDebug() << "RCSVLogger::absolutePath(): Opening " + path;
-        return path;
-    } else{
-        qDebug() << "RCSVLogger::absolutePath(): Absolute path not given, opening " + path;
-        return
-            #if defined(Q_OS_WIN)
-                QStandardPaths::writableLocation(QStandardPaths::StandardLocation::AppDataLocation)
-            #else
-                QStandardPaths::writableLocation(QStandardPaths::StandardLocation::DocumentsLocation)
-            #endif
-                + "/" + path;
-    }
+QString RCSVLogger::absolutePath(QString name){
+    return absPath+name;
 }
-
 
 inline QString RCSVLogger::buildLogLine(QVariantList const& data){
     QString line = "";
 
     //Timestamp
-
     if(logTime){
         if(logMillis)
             line += QString::number(QDateTime::currentMSecsSinceEpoch());
@@ -260,7 +249,7 @@ inline QString RCSVLogger::buildLogLine(QVariantList const& data){
             line += QString::number(QDateTime::currentSecsSinceEpoch());
     }
 
-    //Rest of data
+    //Rest of the data
     if(data.size() != header.size())
         qWarning() << "RCSVLogger::buildLogLine(): Data and header don't have the same length, log file will not be correct.";
     if(data.size() > 0){
@@ -279,8 +268,12 @@ inline QString RCSVLogger::buildLogLine(QVariantList const& data){
 
 inline QString RCSVLogger::buildHeaderString(){
     QString headerString = "";
+
+    //Timestamp header field
     if(logTime)
         headerString += timestampHeader;
+
+    //Rest of the header
     if(header.size() > 0){
         if(logTime)
             headerString += ", ";
@@ -288,45 +281,45 @@ inline QString RCSVLogger::buildHeaderString(){
     }
     for(int i = 1; i < header.size(); i++)
         headerString += ", " + header.at(i);
+
     return headerString;
 }
 
-void RCSVLogger::setFilename(const QString& filename){
-    this->filename = filename;
-    emit filenameChanged();
-}
-
-void RCSVLogger::setLogTime(bool logTime){
-    if(this->logTime != logTime){
-        if(writing)
-            qCritical() << "RCSVLogger::setLogTime(): logTime cannot be changed while writing.";
-        else{
-            this->logTime = logTime;
-            emit logTimeChanged();
-        }
-    }
-}
-
-void RCSVLogger::setHeader(QList<QString> const& header){
-    if(this->header != header){
-        if(writing)
-            qCritical() << "RCSVLogger::setHeader(): header cannot be changed while writing.";
-        else{
-            this->header = header;
-            emit headerChanged();
-        }
-    }
-}
-
 void RCSVLogger::log(QVariantList const& data){
+    QString line=buildLogLine(data);
+
+    //Debug mode: printing to the console
     if(toConsole){
-        qDebug() << buildLogLine(data);
+        qDebug() << line;
         return;
     }
-    if(updates.contains(filename)){
-        updates[filename].append(data);
-    } else {
-        updates[filename]={data};
+
+    //Normal Mode: writing to the local CSV database and to the server
+    writing = true;
+    if(!updates.contains(filename))
+        updates[filename]=QStringList(buildHeaderString());
+    updates[filename].append(line);
+}
+
+void RCSVLogger::setAbsPath(const QString& path){
+    if(this->absPath != path){
+        if(writing)
+            qCritical() << "RCSVLogger::setAbsPath(): absPath cannot be changed while writing.";
+        else{
+            this->absPath = path;
+            emit absPathChanged();
+        }
+    }
+}
+
+void RCSVLogger::setServerURL(const QString& url){
+    if(this->serverURL != url){
+        if(writing)
+            qCritical() << "RCSVLogger::setAbsPath(): serverURL cannot be changed while writing.";
+        else{
+            this->serverURL = url;
+            emit serverURLChanged();
+        }
     }
 }
 

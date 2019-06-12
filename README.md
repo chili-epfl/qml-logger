@@ -64,3 +64,38 @@ Then, generate the documentation:
 ```
   $ doxygen
 ```
+
+RCSVLogger
+-----------
+
+Utilization
+------------
+'''
+	Initialization:
+		RCSVLogger{
+
+        		id: logger
+        		filename: "data.csv" (dafault) --- Name of the CSV log file (it is placed in the "absPath" directory)
+        		header: [] (default) --- Header of the logs (excluding "timestamp")
+        		serverURL: "http://127.0.0.1:8000/" (default) --- URL of the reception server	
+			logTime: true (default) --- Whether to include a timestamp at the beginning of each log or not
+    			logMillis: true (default) --- In the case timestamps are added to the logs, whether to express them in milliseconds or seconds
+    			toConsole: false (default) --- Whether to print the logs in the console instead of saving them (for debugging purposes) or not
+    			precision: 2 (default) --- Precision of log-saved floats
+			absPath: "/.../Documents/Logs" (default) --- Absolute path to the local CSV database
+		}
+	Log Writing:
+		logger.log([data]) --- "data" must match the inputed header
+'''
+Limitations
+------------
+'''
+	RCSVLogger will work with any header but, taking into account the structure of the SQLite3 database waiting on the other side,
+	it is preferable to use one of the following formats:
+		-["game_id","user_id","iter","robot_id","x","y","theta"], logTime=true --- for the table "Position"
+		-["game_id","user_id","zone_id","iter","robot_id","event","state"], logTime=true --- for the table "DiscreteEvent"
+		-["game_id","user_id","zone_id","iter","robot_id","event","value"], logTime=true --- for the table "ContinuousEvent"
+		-["game_id","name"], logTime=false --- for the table "Game"
+		-["user_id","name"], logTime=false --- for the table "User"
+		-["zone_id","name"], logTime=false --- for the table "Zone"
+'''

@@ -10,6 +10,11 @@ var dir_68267d1309a1af8e8297ef4c3efbcdba =
     [ "LoggerUtil.h", "LoggerUtil_8h.html", [
       [ "LoggerUtil", "classQMLLogger_1_1LoggerUtil.html", "classQMLLogger_1_1LoggerUtil" ]
     ] ],
+    [ "RCSVLgger.h", "RCSVLgger_8h_source.html", null ],
+    [ "RCSVLogger.cpp", "RCSVLogger_8cpp.html", null ],
+    [ "RCSVLogger.h", "RCSVLogger_8h.html", [
+      [ "RCSVLogger", "classQMLLogger_1_1RCSVLogger.html", "classQMLLogger_1_1RCSVLogger" ]
+    ] ],
     [ "SimpleLogger.cpp", "SimpleLogger_8cpp.html", null ],
     [ "SimpleLogger.h", "SimpleLogger_8h.html", [
       [ "SimpleLogger", "classQMLLogger_1_1SimpleLogger.html", "classQMLLogger_1_1SimpleLogger" ]
