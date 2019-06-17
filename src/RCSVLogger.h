@@ -28,6 +28,7 @@
 #include <QQuickItem>
 #include <QNetworkAccessManager>
 #include <QtNetwork>
+
 namespace QMLLogger {
 
 /**
@@ -47,7 +48,7 @@ namespace QMLLogger {
  *     timestamp if enabled, data[0], data[1], ..., data[N - 1]
  * '''
  */
-    class RCSVLogger : public QQuickItem {
+ class RCSVLogger : public QQuickItem {
         /* *INDENT-OFF* */
         Q_OBJECT
         /* *INDENT-ON* */

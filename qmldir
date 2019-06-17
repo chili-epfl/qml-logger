@@ -1,2 +1,2 @@
-module RLogger
+module Logger
 plugin loggerplugin
