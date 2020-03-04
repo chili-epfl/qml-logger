@@ -39,6 +39,7 @@ SimpleLogger::SimpleLogger(QQuickItem* parent) : QQuickItem(parent){
     toConsole = false;
 
     fileNeedsReopen = false;
+    appendDisabled=false;
 
     deviceId = "[" + LoggerUtil::getUniqueDeviceID() + "] ";
 
@@ -105,7 +106,7 @@ void SimpleLogger::log(const QString& data){
         QDir::root().mkpath(QFileInfo(filename).absolutePath());
 
         file.setFileName(filename);
-        if(!file.open(QIODevice::WriteOnly | QIODevice::Append)){
+        if(!file.open(QIODevice::WriteOnly | appendDisabled?QIODevice::WriteOnly:QIODevice::Append)){
             qCritical() << "SimpleLogger::log(): Could not open file: " << file.errorString();
             return;
         }

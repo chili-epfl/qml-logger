@@ -69,6 +69,9 @@ class SimpleLogger : public QQuickItem {
     /** @brief Whether to print the log lines to the console for debug purposes, default false */
     Q_PROPERTY(bool toConsole MEMBER toConsole)
 
+    /** @brief Whether to append the log lines to the existing file or create a new file, default false */
+    Q_PROPERTY(bool appendDisabled MEMBER appendDisabled)
+
 public:
 
     /** @cond DO_NOT_DOCUMENT */
@@ -128,6 +131,7 @@ private:
     bool logDeviceInfo;     ///< Whether to include local unique device info when data is logged
     QString filename;       ///< Log's filename or full path
     bool fileNeedsReopen;   ///< Filename changed and file needs reopening
+    bool appendDisabled;    ///< append option disabled
 
     QFile file;             ///< Log file
     QTextStream writer;     ///< Log file writer
